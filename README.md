@@ -1,6 +1,6 @@
-# Batocera-Development-RAG
+# Batocera-Development-KB
 
-Retrieval-augmented knowledge base for Batocera-related development. Covers multiple projects: [Batocera-CRT-Script](https://github.com/ZFEbHVUE/Batocera-CRT-Script), [batocera-unofficial-addons](https://github.com/batocera-unofficial-addons/batocera-unofficial-addons), [batocera.linux](https://github.com/batocera-linux/batocera.linux), and others.
+Knowledge base for Batocera-related development. Covers multiple projects: [Batocera-CRT-Script](https://github.com/ZFEbHVUE/Batocera-CRT-Script), [batocera-unofficial-addons](https://github.com/batocera-unofficial-addons/batocera-unofficial-addons), [batocera.linux](https://github.com/batocera-linux/batocera.linux), and others.
 
 ## Purpose
 
@@ -88,12 +88,3 @@ Development efforts documented here include:
 - **BUA (batocera-unofficial-addons)** — Steam, Fightcade, add-on fixes
 - **batocera.linux** — storage manager, mergerFS, core scripts
 - **v43 / Wayland / X11** — display stack, dual-boot, tearing fixes
-
-## Renaming (optional)
-
-The repo was originally Batocera-CRT-Script-RAG. To fully rebrand to Batocera-Development-RAG:
-
-1. **GitHub:** Settings → General → Repository name → `Batocera-Development-RAG`
-2. **Local:** `mv Batocera-CRT-Script-RAG Batocera-Development-RAG`
-3. **Remote:** `git remote set-url origin <new-URL>` if the clone path changed
-4. **Workspace:** Update Cursor/VSCode workspace to reference the new folder path

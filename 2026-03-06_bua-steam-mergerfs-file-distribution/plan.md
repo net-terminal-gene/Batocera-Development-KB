@@ -20,32 +20,31 @@ BATO-PARROT (3.7 TB SSD, 2.4 TB free) wins the free-space competition vs NVMe (1
 
 ## Solution
 
-### 1. Steam (implemented)
+### 1. Steam (remote only)
 
-Modified 4 BUA scripts to detect `.roms_base` and write directly there:
-- `steam/extra/create-steam-launchers2.sh`
-- `steam/extra/create-steam-launchers.sh`
-- `steam/steam2.sh`
-- `steam/steam.sh`
+Modified `create-steam-launchers.sh` on remote Batocera to detect `.roms_base` and pin writes there. BUA repo scripts were **not** modified — user reverted those changes.
 
-### 2. CRT (implemented)
+### 2. CRT (committed & pushed)
 
-Modified `Batocera-CRT-Script-v43.sh` to detect `.roms_base` and write CRT tools there.
-Added `CRT_ROMS` variable near line 5069 that resolves to `/userdata/.roms_base` (when mergerfs active) or `/userdata/roms` (fallback).
-Updated all write targets: `cp -a crt/`, `chmod` of tool scripts/keys, mode_switcher copy, gamelist.xml copy, overlays_overrides copy, GunCon2_Calibration.sh generation.
+Modified 3 files in Batocera-CRT-Script repo, committed `85e95a1` to `crt-hd-mode-switcher-v43`:
+- `Batocera-CRT-Script-v43.sh` — `CRT_ROMS` variable + all CRT write targets use it
+- `mode_switcher.sh` — `CRT_ROMS` defined in parent (inherited by modules)
+- `03_backup_restore.sh` — 41 refs to `/userdata/roms/crt` → `$CRT_ROMS/crt`
+
 Left `DIRS_TO_REMOVE` array at `/userdata/roms/crt` (restore/uninstall path — must delete through merged view).
 
-### 3. flatpak, ports (file migration done, script fixes pending)
+### 3. Boot guard (remote only)
 
-All unique files from BATO-PARROT copied to `.roms_base` for all 3 folders plus crt. BATO-PARROT directories deleted (user approved).
+`mergerfs-pin-internal.sh` deployed to remote. Pre-creates protected dirs on `.roms_base`, moves strays from external drives, runs 5-min background watcher. Called from `custom_service` at boot.
 
-Script fix scope:
-- **flatpak**: Written by BUA flatpak template + individual addon scripts (7 scripts). Feasible to fix.
-- **ports**: Written by 100+ BUA addon scripts. Not feasible to fix individually — needs a systemic solution (shared helper function or batocera-storage-manager exclusion list).
+### 4. flatpak, ports (DEFERRED)
 
-### 3. Systemic solution (future)
+All unique files migrated from BATO-PARROT to `.roms_base`. BATO-PARROT directories deleted.
+BUA scripts not modified — boot guard covers these at the system level.
 
-The proper fix is in `batocera-storage-manager` itself — either:
+### 5. Systemic solution (future, if needed)
+
+The proper fix would be in `batocera-storage-manager` itself — either:
 - A config key like `mergerfs.exclude=steam,crt,flatpak,ports` to prevent these dirs from being part of the pool
 - Or changing the create policy per-directory (mergerfs supports `.mergerfs` policy files)
 
@@ -53,13 +52,11 @@ The proper fix is in `batocera-storage-manager` itself — either:
 
 | Repo | File | Change |
 |------|------|--------|
-| batocera-unofficial-addons | `steam/extra/create-steam-launchers2.sh` | Write to `.roms_base` when mergerfs active |
-| batocera-unofficial-addons | `steam/extra/create-steam-launchers.sh` | Write to `.roms_base` when mergerfs active |
-| batocera-unofficial-addons | `steam/steam2.sh` | Write to `.roms_base` when mergerfs active |
-| batocera-unofficial-addons | `steam/steam.sh` | Write to `.roms_base` when mergerfs active |
 | Batocera-CRT-Script | `Batocera_ALLINONE/Batocera-CRT-Script-v43.sh` | `CRT_ROMS` variable + all crt write targets use it |
 | Batocera-CRT-Script | `Geometry_modeline/mode_switcher.sh` | `CRT_ROMS` variable defined in parent (inherited by all modules) |
 | Batocera-CRT-Script | `Geometry_modeline/mode_switcher_modules/03_backup_restore.sh` | All 41 `/userdata/roms/crt` refs → `$CRT_ROMS/crt` (runtime mode switch) |
+| Remote only | `create-steam-launchers.sh` | `ROMS_ROOT` pins Steam writes to `.roms_base` |
+| Remote only | `mergerfs-pin-internal.sh` + `custom_service` | Boot guard + watcher for all 4 subsystems |
 
 ## Validation
 
@@ -69,5 +66,9 @@ The proper fix is in `batocera-storage-manager` itself — either:
 - [x] All unique BATO-PARROT flatpak files copied to `.roms_base`
 - [x] All unique BATO-PARROT ports files copied to `.roms_base`
 - [x] Delete crt/flatpak/ports from BATO-PARROT (user approved, done)
-- [ ] Test: reinstall Steam addon and verify files land on `.roms_base`
-- [ ] Test: run CRT Script and verify files land on `.roms_base`
+- [x] Test: Steam game (Balatro) loads from `.roms_base` after migration
+- [x] Test: new Steam install (ZeroRanger) lands on `.roms_base`
+- [x] Test: mode switcher (CRT→HD, HD→CRT) writes CRT tools to `.roms_base`
+- [x] Test: boot guard runs at boot, watcher process active
+- [x] Test: no protected dirs on external drives after reboot
+- [x] CRT script changes committed & pushed (`85e95a1` on `crt-hd-mode-switcher-v43`)

@@ -30,6 +30,7 @@ fi
 
 ## What Is NOT Changed
 
+- **BUA repo scripts** — Steam, flatpak, and ports addon scripts in `batocera-unofficial-addons` were **not** modified. The Steam fix exists only on the remote Batocera. The boot guard handles flatpak/ports at the system level.
 - **Read-only paths** — Scripts that only *read* from `/userdata/roms/crt/` (e.g. checking if a file exists for detection) work fine through the merged view. Reads find the file regardless of which branch it's on.
 - **`DIRS_TO_REMOVE` array** in `Batocera-CRT-Script-v43.sh` line 359 — This is the *uninstall/restore* cleanup path. It must stay as `/userdata/roms/crt` so `rm -rf` goes through the merged view and deletes files from whichever branch they're on.
 - **Commented-out code** in `Batocera-CRT-Script-v43.sh` lines 5136-5137 — Dead code, no effect.

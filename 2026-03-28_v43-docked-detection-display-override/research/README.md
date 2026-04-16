@@ -90,3 +90,12 @@ Standalone: First video output defaulted to - DP-1
 - Plugging DP-1 → `/var/run/batocera-docked` immediately contained `DP-1`
 - GPU: `Navi 32 [Radeon RX 7700 XT / 7800 XT]` — EDID intermittently failing on both DP ports
 - After fix image: docked flag never written with configured outputs present
+
+---
+
+## KB maintenance (2026-04-16)
+
+Supporting research for this session. **Outcome:** `../VERDICT.md`. **PR:** `../pr-status.md`.
+
+Vault: `Vault-Batocera/wiki/sources/batocera-development-kb.md` (session table), `wiki/concepts/development-contributions.md`, `wiki/concepts/active-work.md`.
+

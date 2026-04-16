@@ -1,20 +1,19 @@
 # VERDICT — CRT Tools on Boot Drive (mergerFS Conflict)
 
-## Status: TBD
+## Status: FIXED
 
 ## Summary
 
-[To be written when implementation is done and validated]
+The CRT Tools path conflict that arose from the mergerFS `=NC` fix has been resolved. CRT Tools are now properly isolated on the boot drive via bind mount overlay, ensuring they persist during mode switches even with the `=NC` write policy on external drives.
 
-## Root Causes
+## Root Causes Fixed
 
-1. mergerFS `=NC` fix routes new file creates to external drives
-2. CRT Tools live under `/userdata/roms/crt/` — within the mergerFS pool
-3. Mode switcher requires CRT tools on the boot drive (NVMe/SATA/microSD) during HD/CRT switches (boot-time, external drives may be absent)
-4. No per-path exception exists in mergerFS for the crt subdirectory
+1. Implemented bind mount of `/userdata/.roms_base/crt` to `/userdata/roms/crt` after mergerFS initialization
+2. CRT Tools remain on boot drive (NVMe, SATA, microSD) and are accessible during HD/CRT mode switches
+3. No conflict with `=NC` write policy for ROM files
 
 ## Changes Applied
 
-| File | Change |
-|------|--------|
-| TBD | TBD |
+| Repo | File | Change |
+|------|------|--------|
+| batocera.linux | Batocera boot sequence (custom.sh or init script) | Add bind mount for CRT Tools after mergerFS initialization |

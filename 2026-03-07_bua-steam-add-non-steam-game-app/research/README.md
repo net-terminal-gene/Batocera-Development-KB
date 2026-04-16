@@ -97,3 +97,12 @@ Result: `Infinos2/` with KeyConfig.exe + infinos_2.EXE — exe picker lets user 
 **Steam CLI does not work for non-Steam shortcuts** (see FAILURES.md) — so we cannot launch through Steam to get Steam Input.
 
 **Things to try**: Proton Experimental, SDL_GAMECONTROLLERCONFIG in launcher, evmapy pass-through investigation.
+
+---
+
+## KB maintenance (2026-04-16)
+
+Supporting research for this session. **Outcome:** `../VERDICT.md`. **PR:** `../pr-status.md`.
+
+Vault: `Vault-Batocera/wiki/sources/batocera-development-kb.md` (session table), `wiki/concepts/development-contributions.md`, `wiki/concepts/active-work.md`.
+

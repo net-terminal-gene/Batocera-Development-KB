@@ -1,10 +1,22 @@
 # PR Status -- CRT EmulationStation Theme for 320x240
 
-## No PR yet
+## PR #409
 
-Theme development has not started. PR will be created once:
-1. Theme structure is scaffolded (fork of Carbon or new repo)
-2. Initial 240p layout overrides are implemented
-3. Basic testing on CRT hardware confirms readability
+| Field | Value |
+|-------|-------|
+| Repo | ZFEbHVUE/Batocera-CRT-Script |
+| PR | [#409](https://github.com/ZFEbHVUE/Batocera-CRT-Script/pull/409) |
+| Branch | `es-carbon-240-install` → `main` |
+| Title | Add CRT 240p layout installer integration to Carbon theme |
+| Status | **OPEN (Draft)** |
+| Created | 2026-04-11 |
 
-Likely target: new standalone GitHub repo (e.g., `es-theme-carbon-crt` or `es-theme-crt-240p`), not a PR to upstream Carbon.
+## Review Comments
+
+None yet.
+
+## Outstanding Items
+
+- [ ] Validate at actual 320x240 on Philips CRT (not yet tested at native 240p -- only tested at 640x480)
+- [ ] Confirm subset toggle visible and functional in ES UI after fresh install
+- [ ] Test restore path removes crt240p.xml and reverts theme.xml

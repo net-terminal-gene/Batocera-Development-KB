@@ -47,3 +47,12 @@ The guard on line 821 was designed to avoid losing good CRT mode data when switc
 **This assumption breaks when:**
 1. The initial backup was written by `03_backup_restore.sh` from a `batocera.conf` value that was never correctly set by the installer
 2. `batocera-resolution currentMode` always returns empty in X11 mode, so Priority 1 never fires to correct the value
+
+---
+
+## KB maintenance (2026-04-16)
+
+Supporting research for this session. **Outcome:** `../VERDICT.md`. **PR:** `../pr-status.md`.
+
+Vault: `Vault-Batocera/wiki/sources/batocera-development-kb.md` (session table), `wiki/concepts/development-contributions.md`, `wiki/concepts/active-work.md`.
+

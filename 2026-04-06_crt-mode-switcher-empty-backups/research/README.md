@@ -72,3 +72,12 @@ All three `NEEDS_*` flags were `false` on the second run — wizard skipped to s
 | `hd_mode/` | 11 | `video_output.txt`: HDMI-2, batocera.conf, syslinux, es_settings, available modes/outputs |
 
 **Conclusion:** Empty backups is confirmed as first-run behavior, not a bug.
+
+---
+
+## KB maintenance (2026-04-16)
+
+Supporting research for this session. **Outcome:** `../VERDICT.md`. **PR:** `../pr-status.md`.
+
+Vault: `Vault-Batocera/wiki/sources/batocera-development-kb.md` (session table), `wiki/concepts/development-contributions.md`, `wiki/concepts/active-work.md`.
+

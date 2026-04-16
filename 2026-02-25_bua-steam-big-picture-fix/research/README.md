@@ -64,3 +64,12 @@ The PDF's "Working Launcher Script" also includes:
 - Bring Steam fullscreen: `wmctrl -r "Big-Picture" -b add,fullscreen` and `wmctrl -a "Big-Picture"`
 
 **Caveat:** `wmctrl -r "Big-Picture"` uses a fixed title — would fail on localized systems. If implemented, would need a broader match or different approach.
+
+---
+
+## KB maintenance (2026-04-16)
+
+Supporting research for this session. **Outcome:** `../VERDICT.md`. **PR:** `../pr-status.md`.
+
+Vault: `Vault-Batocera/wiki/sources/batocera-development-kb.md` (session table), `wiki/concepts/development-contributions.md`, `wiki/concepts/active-work.md`.
+

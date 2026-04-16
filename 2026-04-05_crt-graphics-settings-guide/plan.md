@@ -36,3 +36,17 @@ Created a universal CRT graphics settings guide covering:
 - [x] Hardware context matches actual setup (BC-250, Philips 20PT6341, Sony KV-9PT40)
 - [x] HD Mode behavior matches CRT-Script codebase (verified from 02_hd_output_selection.sh, 03_backup_restore.sh)
 - [ ] Settings tested on actual Batocera system with CRT output
+
+---
+
+## KB maintenance (2026-04-16)
+
+| Record | Location |
+|--------|----------|
+| Outcome / scope | `VERDICT.md` |
+| PR / branch | `pr-status.md` |
+| Wiki index | `Vault-Batocera/wiki/sources/batocera-development-kb.md`, `wiki/concepts/active-work.md`, `wiki/concepts/development-contributions.md` |
+| Changelog-style notes | `Vault-Batocera/log.md` |
+
+CRT Script v43 HD/CRT mode switcher delivery: branch `crt-hd-mode-switcher-v43` (e.g. commit `64b9a16`, 2026-04-16). Applies only to sessions in that scope.
+

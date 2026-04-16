@@ -148,3 +148,12 @@ A systemic fix would need to modify these templates and regenerate, or add a sha
 3. **crt/flatpak/ports files migrated** — all unique files copied to `.roms_base`. BATO-PARROT copies awaiting deletion approval.
 4. **Systemic BUA fix needed** — 100+ scripts write to `/userdata/roms/ports`. Individual fixes are impractical. Best approach is a shared helper or `batocera-storage-manager` exclusion list.
 5. **No data was lost** — all copies were verified before any deletion.
+
+---
+
+## KB maintenance (2026-04-16)
+
+Supporting research for this session. **Outcome:** `../VERDICT.md`. **PR:** `../pr-status.md`.
+
+Vault: `Vault-Batocera/wiki/sources/batocera-development-kb.md` (session table), `wiki/concepts/development-contributions.md`, `wiki/concepts/active-work.md`.
+

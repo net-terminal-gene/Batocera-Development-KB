@@ -37,3 +37,17 @@ The merge runs `mv "$POOL_PATH"/* "$BASE_DIR"/` after `umount -l`. Lazy unmount 
 - [x] Fix deployed locally (patched build via overlay)
 - [x] Test merge with BATO-LG / BATO-PARROT; BATO-ALL intact
 - [x] Fix merged upstream by others (no PR from this session)
+
+---
+
+## KB maintenance (2026-04-16)
+
+| Record | Location |
+|--------|----------|
+| Outcome / scope | `VERDICT.md` |
+| PR / branch | `pr-status.md` |
+| Wiki index | `Vault-Batocera/wiki/sources/batocera-development-kb.md`, `wiki/concepts/active-work.md`, `wiki/concepts/development-contributions.md` |
+| Changelog-style notes | `Vault-Batocera/log.md` |
+
+CRT Script v43 HD/CRT mode switcher delivery: branch `crt-hd-mode-switcher-v43` (e.g. commit `64b9a16`, 2026-04-16). Applies only to sessions in that scope.
+

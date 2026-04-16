@@ -34,3 +34,17 @@ Additionally, add an `es.resolution` fallback in `get_crt_boot_resolution()` (~l
 - [ ] After CRT Script install on Wayland dual-boot, verify `global.videooutput` is set to CRT output in batocera.conf
 - [ ] Verify first CRT boot shows EmulationStation on CRT (no black screen)
 - [ ] Test mode switcher first run: should only ask for HD output (not CRT or boot res)
+
+---
+
+## KB maintenance (2026-04-16)
+
+| Record | Location |
+|--------|----------|
+| Outcome / scope | `VERDICT.md` |
+| PR / branch | `pr-status.md` |
+| Wiki index | `Vault-Batocera/wiki/sources/batocera-development-kb.md`, `wiki/concepts/active-work.md`, `wiki/concepts/development-contributions.md` |
+| Changelog-style notes | `Vault-Batocera/log.md` |
+
+CRT Script v43 HD/CRT mode switcher delivery: branch `crt-hd-mode-switcher-v43` (e.g. commit `64b9a16`, 2026-04-16). Applies only to sessions in that scope.
+

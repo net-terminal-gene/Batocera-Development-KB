@@ -65,3 +65,17 @@ Three issues identified in the PDF:
 - [ ] Test on German (or other non-English) Batocera locale — window detection works
 - [ ] On Ryzen + AMD dual-GPU systems: verify Steam uses dGPU (or document DRI_PRIME config) — primary repro config
 - [ ] Regression check: Intel+Nvidia, Intel no GPU, Steam Deck (teammate confirms these work; verify after changes)
+
+---
+
+## KB maintenance (2026-04-16)
+
+| Record | Location |
+|--------|----------|
+| Outcome / scope | `VERDICT.md` |
+| PR / branch | `pr-status.md` |
+| Wiki index | `Vault-Batocera/wiki/sources/batocera-development-kb.md`, `wiki/concepts/active-work.md`, `wiki/concepts/development-contributions.md` |
+| Changelog-style notes | `Vault-Batocera/log.md` |
+
+CRT Script v43 HD/CRT mode switcher delivery: branch `crt-hd-mode-switcher-v43` (e.g. commit `64b9a16`, 2026-04-16). Applies only to sessions in that scope.
+

@@ -13,10 +13,10 @@
 
 ## Upstream: Docked Detection Fix
 
-No PR yet. The fix from dmanlfc was shared via Google Drive (patched image) but has not been pushed to a branch or PR on the `batocera.linux` GitHub repo as of March 28, 2026.
+**MERGED to batocera.linux.** The docked detection logic inversion (skip detection when any output is explicitly configured) is now deployed in upstream.
 
 ## Tracking
 
-- [ ] Watch for dmanlfc to push fix branch to `batocera-linux/batocera.linux`
-- [ ] Once merged to upstream, sync into CRT Script `main` and `crt-hd-mode-switcher-v43`
+- [x] Watch for dmanlfc to push fix branch to `batocera-linux/batocera.linux` — MERGED
+- [x] Once merged to upstream, sync into CRT Script `main` and `crt-hd-mode-switcher-v43`
 - [x] CRT Script DRM name fix: committed `1c01262` on `crt-hd-mode-switcher-v43` (April 2, 2026)

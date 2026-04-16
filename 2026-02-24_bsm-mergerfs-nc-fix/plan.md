@@ -76,3 +76,17 @@ Only apply `=NC` on drives that should never receive new writes (i.e. NVMe for r
 - [ ] Confirm files land on external drive, NOT on NVMe (`/userdata/.roms_base/`)
 - [ ] Verify existing NVMe ROM content (steam, ports, pcengine, prboom) is still readable through the pool
 - [ ] Test drive removal/re-add (eject + hotplug) rebuilds pool correctly with =NC still applied
+
+---
+
+## KB maintenance (2026-04-16)
+
+| Record | Location |
+|--------|----------|
+| Outcome / scope | `VERDICT.md` |
+| PR / branch | `pr-status.md` |
+| Wiki index | `Vault-Batocera/wiki/sources/batocera-development-kb.md`, `wiki/concepts/active-work.md`, `wiki/concepts/development-contributions.md` |
+| Changelog-style notes | `Vault-Batocera/log.md` |
+
+CRT Script v43 HD/CRT mode switcher delivery: branch `crt-hd-mode-switcher-v43` (e.g. commit `64b9a16`, 2026-04-16). Applies only to sessions in that scope.
+

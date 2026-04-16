@@ -28,3 +28,12 @@ CRT tools currently reside on BATO-PARROT. With `=NC` fix, mode switcher writes 
 ### mergerFS Limitation
 
 mergerFS has no per-subdirectory or per-path branch policy. You cannot say "boot-drive branch is =NC except for `/crt/`". The `=NC` flag applies to the entire branch.
+
+---
+
+## KB maintenance (2026-04-16)
+
+Supporting research for this session. **Outcome:** `../VERDICT.md`. **PR:** `../pr-status.md`.
+
+Vault: `Vault-Batocera/wiki/sources/batocera-development-kb.md` (session table), `wiki/concepts/development-contributions.md`, `wiki/concepts/active-work.md`.
+

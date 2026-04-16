@@ -1,21 +1,29 @@
 # VERDICT — Mode Switcher Truncated global.videomode
 
-## Status: TBD
+## Status: FIXED
 
 ## Summary
 
-The mode switcher saves a truncated mode ID (`769x576.50.00`) to `video_mode.txt`, which gets restored to `batocera.conf` as `global.videomode`. ES compares this against `batocera-resolution listModes` which uses full-precision IDs (`769x576.50.00060`) — no match found, so ES shows "Auto" in the Video Mode setting.
+Truncated mode IDs in `video_mode.txt` and derivation of `es.resolution` from that file caused EmulationStation to show "Auto" for Video Mode. The "preserve existing" guard in `02_hd_output_selection.sh` blocked user boot-resolution updates on HD→CRT.
 
-The "preserve existing backup" guard in `02_hd_output_selection.sh` (line 821) is the direct cause — it protects a stale truncated value instead of using the correctly resolved full-precision mode ID from `get_boot_mode_id()`.
+Fixes: always write resolved `$boot_mode_id` and companion `es_resolution.txt`; `03_backup_restore.sh` prefers `es_resolution.txt` on restore; `crt-launcher.sh` syncs `batocera.conf` videomode strings to `batocera-resolution currentMode` before `emulatorlauncher` to avoid string mismatch at launch time.
 
 ## Root Causes
 
-1. `batocera-resolution currentMode` returns empty in X11/CRT mode (DRM/Wayland tool), so the primary sync path never fires.
-2. The "preserve existing" guard (line 821) blindly keeps the existing `video_mode.txt` value, even when a correct `$boot_mode_id` is available.
-3. The initial `video_mode.txt` was written by `03_backup_restore.sh` from a `batocera.conf` value that had truncated precision.
+1. `batocera-resolution currentMode` returns empty in X11/CRT mode in some paths; backup could fall back to truncated values.
+2. The "preserve existing" guard kept stale `video_mode.txt` instead of the resolved boot mode ID.
+3. `es.resolution` was not backed up independently of `global.videomode`.
 
 ## Changes Applied
 
 | File | Change |
 |------|--------|
-| (pending) | `02_hd_output_selection.sh` — remove "preserve existing" guard, always write resolved `$boot_mode_id` |
+| `mode_switcher_modules/02_hd_output_selection.sh` | Remove preserve guard; write `es_resolution.txt` with boot selection (paths consolidated in branch) |
+| `mode_switcher_modules/03_backup_restore.sh` | Prefer `es_resolution.txt`; HideWindow + HD restore without ES killall (see wayland session debug/x11/04) |
+| `Geometry_modeline/crt-launcher.sh` | Unconditional videomode sync before `emulatorlauncher` |
+
+**Shipped:** `crt-hd-mode-switcher-v43`, commit `64b9a16` (2026-04-16), with related session `2026-04-14_crt-mode-switcher-boot-resolution-not-persisted`.
+
+## Plan vs reality
+
+Original plan was to remove the preserve guard only. Implementation also added `es_resolution.txt` decoupling and launcher-side sync for runtime precision alignment.

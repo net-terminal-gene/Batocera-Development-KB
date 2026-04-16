@@ -8,3 +8,12 @@
 - `batocera-resolution setOutput` provides immediate display switching without reboot
 - MAME ini hierarchy (`mame.ini`, `ini/vertical.ini`, `ini/horizont.ini`) must be swapped as a complete folder to preserve TATE/YOKO
 - Boot resolutions in `videomodes.conf` are prefixed with `Boot_`; hardened parsing needed for user-edited files (empty lines, comments, short mode IDs)
+
+---
+
+## KB maintenance (2026-04-16)
+
+Supporting research for this session. **Outcome:** `../VERDICT.md`. **PR:** `../pr-status.md`.
+
+Vault: `Vault-Batocera/wiki/sources/batocera-development-kb.md` (session table), `wiki/concepts/development-contributions.md`, `wiki/concepts/active-work.md`.
+

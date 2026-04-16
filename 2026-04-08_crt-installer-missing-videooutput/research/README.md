@@ -76,3 +76,12 @@ On CRT/X11 mode, `batocera-resolution listOutputs` returns **empty**, so the val
 ### After Manual Fix
 
 Changing `global.videooutput=eDP-1` to `global.videooutput=DP-1` in `batocera.conf` and rebooting resolved the black screen — ES displayed correctly on the CRT.
+
+---
+
+## KB maintenance (2026-04-16)
+
+Supporting research for this session. **Outcome:** `../VERDICT.md`. **PR:** `../pr-status.md`.
+
+Vault: `Vault-Batocera/wiki/sources/batocera-development-kb.md` (session table), `wiki/concepts/development-contributions.md`, `wiki/concepts/active-work.md`.
+

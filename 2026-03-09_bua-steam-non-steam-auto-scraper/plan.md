@@ -66,3 +66,17 @@ The `create-steam-launchers2.sh` in the `fix-fightcade-libcups` branch already h
 - [ ] User flow: add non-Steam game in Steam Desktop Mode → exit → game appears in ES
 - [ ] User flow: launch non-Steam game from ES → Proton direct launch → game runs
 - [ ] Hotkey+Start exits game and returns to ES
+
+---
+
+## KB maintenance (2026-04-16)
+
+| Record | Location |
+|--------|----------|
+| Outcome / scope | `VERDICT.md` |
+| PR / branch | `pr-status.md` |
+| Wiki index | `Vault-Batocera/wiki/sources/batocera-development-kb.md`, `wiki/concepts/active-work.md`, `wiki/concepts/development-contributions.md` |
+| Changelog-style notes | `Vault-Batocera/log.md` |
+
+CRT Script v43 HD/CRT mode switcher delivery: branch `crt-hd-mode-switcher-v43` (e.g. commit `64b9a16`, 2026-04-16). Applies only to sessions in that scope.
+

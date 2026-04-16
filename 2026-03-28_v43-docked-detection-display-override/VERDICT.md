@@ -1,10 +1,10 @@
 # VERDICT — v43 Docked Detection Display Override
 
-## Status: FIXED (secondary) / WAITING (primary)
+## Status: FIXED
 
-Primary issue (docked detection regression): fix identified and confirmed working on dmanlfc's patched image. Awaiting GitHub push to `batocera.linux`.
-
-Secondary issue (DRM vs xrandr output name mismatch): **fixed, tested on hardware, committed** (`1c01262` on `crt-hd-mode-switcher-v43`, April 2, 2026). HD backup confirmed writing `HDMI-2` (xrandr) instead of `HDMI-A-2` (DRM).
+**Both primary and secondary issues resolved:**
+- Primary (docked detection regression): merged to `batocera.linux` via dmanlfc
+- Secondary (DRM vs xrandr output name mismatch): **fixed, tested on hardware, committed** (`1c01262` on `crt-hd-mode-switcher-v43`, April 2, 2026)
 
 ## Summary
 
@@ -40,10 +40,11 @@ Follow-up session (April 2) addressed the secondary DRM vs xrandr output name mi
 - Comparing MD5 of running binary against repo source confirmed which version was active
 - DRM name fix was verified on hardware via SSH before committing: `video_output.txt` showed `global.videooutput=HDMI-2`
 - Consulting the kernel source (`drm_connector.c`) confirmed the full set of DRM connector types -- only HDMI has a naming mismatch with xrandr
+- Primary docked detection fix merged upstream by dmanlfc, confirming the diagnosis and solution
 
 ## What Didn't
 
-- Docked detection fix is not yet on GitHub -- dependent on dmanlfc pushing
+- Initial session (March 28) was blocked by dmanlfc not having pushed to GitHub yet; resolved with batocera.linux merge
 
 ## Models Used
 

@@ -144,3 +144,17 @@ If creating a CRT overlay at install time is fragile, consider shipping a pre-bu
 - [ ] Test overlay backup/restore on v43 Steam Deck.
 - [ ] Test S31emulationstation override (startx vs sway-launch) via overlay.
 - [ ] Test Mode Switcher CRT ↔ HD on v43 Steam Deck.
+
+---
+
+## KB maintenance (2026-04-16)
+
+| Record | Location |
+|--------|----------|
+| Outcome / scope | `VERDICT.md` |
+| PR / branch | `pr-status.md` |
+| Wiki index | `Vault-Batocera/wiki/sources/batocera-development-kb.md`, `wiki/concepts/active-work.md`, `wiki/concepts/development-contributions.md` |
+| Changelog-style notes | `Vault-Batocera/log.md` |
+
+CRT Script v43 HD/CRT mode switcher delivery: branch `crt-hd-mode-switcher-v43` (e.g. commit `64b9a16`, 2026-04-16). Applies only to sessions in that scope.
+

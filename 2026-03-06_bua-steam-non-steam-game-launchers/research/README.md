@@ -213,3 +213,12 @@ SSH `expect` wrapper mangles `$` in heredocs. **Workaround:** Base64-encode scri
 4. ~~`.steam` vs `.sh` emulator path~~ — **Resolved:** With `steam.emulator=sh`, only `.sh` files appear in ES
 5. ~~Launcher wait behavior~~ — **Resolved:** Proton direct launch uses `wait $PROTON_PID` which returns when the game exits (no persistent Steam process tree)
 6. **Working approach: Proton direct launch** — `proton run exe` with `STEAM_COMPAT_DATA_PATH` + `STEAM_COMPAT_CLIENT_INSTALL_PATH`. Verified working 2026-03-07.
+
+---
+
+## KB maintenance (2026-04-16)
+
+Supporting research for this session. **Outcome:** `../VERDICT.md`. **PR:** `../pr-status.md`.
+
+Vault: `Vault-Batocera/wiki/sources/batocera-development-kb.md` (session table), `wiki/concepts/development-contributions.md`, `wiki/concepts/active-work.md`.
+

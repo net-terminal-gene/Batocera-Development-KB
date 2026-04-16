@@ -68,15 +68,27 @@ ES themes use normalized 0-1 coordinates, so they technically scale to any resol
 - Grid views: 1-2 items max, or text-only list
 - Status bar: simplified (clock, battery can be removed for CRT desktop)
 
+## Approach Pivot (2026-04-11)
+
+Original plan was Option A (standalone fork deployed to `/userdata/themes/es-theme-carbon-crt/`). **Distribution approach changed:** instead of a standalone theme repo, `crt240p.xml` and a `theme.xml` subset block are patched directly into the stock Carbon theme (`/usr/share/emulationstation/themes/es-theme-carbon/`) during CRT Script installation.
+
+Key decisions:
+- No `tinyScreen` gate -- subset is available at all resolutions
+- Auto-enables (`on`) when user selects `320x240@60` as EDID boot resolution; `off` otherwise
+- Stock `theme.xml` backed up via `FILES_TO_HANDLE` before patching; `restore_all()` recovers it
+- `crt240p.xml` added to `EXTRA_DELETE_FILES` so restore removes it cleanly
+- Dev theme repos (`es-theme-carbon-crt`, `es-theme-carbon-hd`) used for iteration; deployed to stock theme once finalized
+- `batocera-save-overlay` called after patching (already present later in install flow)
+
 ## Files Touched
 
 | Repo | File | Change |
 |------|------|--------|
-| New theme repo (or fork) | `theme.xml` | Root theme with CRT 240p subset/conditionals |
-| New theme repo (or fork) | `layouts/crt240p.xml` | CRT-specific layout overrides |
-| New theme repo (or fork) | `views/*.xml` | Modified views with larger fonts, simpler layouts |
-| New theme repo (or fork) | `art/` | Downscaled images for 320x240 |
-| Batocera-CRT-Script | TBD | Theme installation/selection in CRT installer |
+| Batocera-CRT-Script | `Geometry_modeline/crt240p.xml` | New -- CRT 240p layout source asset for installer |
+| Batocera-CRT-Script | `Batocera_ALLINONE/Batocera-CRT-Script-v42.sh` | Copy crt240p.xml, inject subset block, write es_settings.cfg preference, backup/restore arrays |
+| Batocera-CRT-Script | `Batocera_ALLINONE/Batocera-CRT-Script-v43.sh` | Same changes as v42 |
+| es-theme-carbon-crt (dev) | `layouts/crt240p.xml` | CRT 240p layout -- font sizes and positions tuned for 320x240 on 15kHz CRT |
+| es-theme-carbon-crt (dev) | `theme.xml` | Added crt240p subset block after optimizesmallscreens |
 
 ## Validation
 
@@ -85,6 +97,22 @@ ES themes use normalized 0-1 coordinates, so they technically scale to any resol
 - [ ] System list navigable with controller
 - [ ] Game list navigable with controller
 - [ ] No UI element overlap or clipping
-- [ ] Theme also works at 640x480 (480i/480p CRT mode)
+- [ ] Theme also works at 640x480 (tested with crt240p off)
 - [ ] Font rendering clean (no sub-pixel artifacts on CRT)
 - [ ] Performance acceptable (no lag on BC-250)
+- [ ] Restore correctly reverts theme.xml and removes crt240p.xml
+- [ ] Auto-enable logic correct: on at 320x240, off at all other resolutions
+
+---
+
+## KB maintenance (2026-04-16)
+
+| Record | Location |
+|--------|----------|
+| Outcome / scope | `VERDICT.md` |
+| PR / branch | `pr-status.md` |
+| Wiki index | `Vault-Batocera/wiki/sources/batocera-development-kb.md`, `wiki/concepts/active-work.md`, `wiki/concepts/development-contributions.md` |
+| Changelog-style notes | `Vault-Batocera/log.md` |
+
+CRT Script v43 HD/CRT mode switcher delivery: branch `crt-hd-mode-switcher-v43` (e.g. commit `64b9a16`, 2026-04-16). Applies only to sessions in that scope.
+

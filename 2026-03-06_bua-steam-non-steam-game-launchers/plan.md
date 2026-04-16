@@ -130,3 +130,17 @@ Document how users can manually create a `.steam` or `.sh` file for each non-Ste
 - [x] Create manual `.sh` launcher → DOES appear in ES
 - [ ] Launch non-Steam game from ES → Steam opens; game does not launch (both steam:// and -applaunch tried)
 - [ ] Resolve launch failure → cause unknown; launcher also blocks on `wait` until pkill
+
+---
+
+## KB maintenance (2026-04-16)
+
+| Record | Location |
+|--------|----------|
+| Outcome / scope | `VERDICT.md` |
+| PR / branch | `pr-status.md` |
+| Wiki index | `Vault-Batocera/wiki/sources/batocera-development-kb.md`, `wiki/concepts/active-work.md`, `wiki/concepts/development-contributions.md` |
+| Changelog-style notes | `Vault-Batocera/log.md` |
+
+CRT Script v43 HD/CRT mode switcher delivery: branch `crt-hd-mode-switcher-v43` (e.g. commit `64b9a16`, 2026-04-16). Applies only to sessions in that scope.
+

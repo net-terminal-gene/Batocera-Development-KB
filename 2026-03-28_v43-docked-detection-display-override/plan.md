@@ -69,3 +69,17 @@ The secondary issue (root cause #5) was fixed by adding a `drm_name_to_xrandr()`
 - [x] Tested on Batocera hardware via SSH: HD backup `video_output.txt` confirmed `global.videooutput=HDMI-2`
 - [x] Committed and pushed: `1c01262` on `crt-hd-mode-switcher-v43`
 - [ ] Wait for dmanlfc docked detection fix to land on batocera.linux GitHub
+
+---
+
+## KB maintenance (2026-04-16)
+
+| Record | Location |
+|--------|----------|
+| Outcome / scope | `VERDICT.md` |
+| PR / branch | `pr-status.md` |
+| Wiki index | `Vault-Batocera/wiki/sources/batocera-development-kb.md`, `wiki/concepts/active-work.md`, `wiki/concepts/development-contributions.md` |
+| Changelog-style notes | `Vault-Batocera/log.md` |
+
+CRT Script v43 HD/CRT mode switcher delivery: branch `crt-hd-mode-switcher-v43` (e.g. commit `64b9a16`, 2026-04-16). Applies only to sessions in that scope.
+

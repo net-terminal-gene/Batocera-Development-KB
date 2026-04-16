@@ -53,3 +53,17 @@ elif [ -n "$boot_mode_id" ]; then
 - [ ] Verify `global.videomode` in `batocera.conf` matches full-precision mode ID from `batocera-resolution listModes`
 - [ ] Verify ES UI > System Settings > Video Mode shows correct boot resolution (not "Auto")
 - [ ] Verify mode switcher log shows correct mode ID being written (no "Preserving existing" message)
+
+---
+
+## KB maintenance (2026-04-16)
+
+| Record | Location |
+|--------|----------|
+| Outcome / scope | `VERDICT.md` |
+| PR / branch | `pr-status.md` |
+| Wiki index | `Vault-Batocera/wiki/sources/batocera-development-kb.md`, `wiki/concepts/active-work.md`, `wiki/concepts/development-contributions.md` |
+| Changelog-style notes | `Vault-Batocera/log.md` |
+
+CRT Script v43 HD/CRT mode switcher delivery: branch `crt-hd-mode-switcher-v43` (e.g. commit `64b9a16`, 2026-04-16). Applies only to sessions in that scope.
+

@@ -36,3 +36,17 @@ Preserve Steam settings across mode switches (same pattern as VNC preservation a
 - [ ] Run Mode Switcher: HD → CRT → verify Steam launches
 - [ ] Run Mode Switcher: CRT → HD → verify steam.* still present, Steam launches
 - [ ] Roundtrip; per-game videomode persists
+
+---
+
+## KB maintenance (2026-04-16)
+
+| Record | Location |
+|--------|----------|
+| Outcome / scope | `VERDICT.md` |
+| PR / branch | `pr-status.md` |
+| Wiki index | `Vault-Batocera/wiki/sources/batocera-development-kb.md`, `wiki/concepts/active-work.md`, `wiki/concepts/development-contributions.md` |
+| Changelog-style notes | `Vault-Batocera/log.md` |
+
+CRT Script v43 HD/CRT mode switcher delivery: branch `crt-hd-mode-switcher-v43` (e.g. commit `64b9a16`, 2026-04-16). Applies only to sessions in that scope.
+

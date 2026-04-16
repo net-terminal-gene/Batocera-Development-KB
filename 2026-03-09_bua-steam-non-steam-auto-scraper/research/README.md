@@ -47,3 +47,12 @@ The `add-non-steam-game.sh` app from `2026-03-07` eliminates all Steam UI intera
 - Hasn't been tested with BUA's install flow
 - Adds maintenance burden (separate script, artwork, gamelist entry, .keys file)
 - The auto-scraper approach covers the common case with zero new user-facing components
+
+---
+
+## KB maintenance (2026-04-16)
+
+Supporting research for this session. **Outcome:** `../VERDICT.md`. **PR:** `../pr-status.md`.
+
+Vault: `Vault-Batocera/wiki/sources/batocera-development-kb.md` (session table), `wiki/concepts/development-contributions.md`, `wiki/concepts/active-work.md`.
+

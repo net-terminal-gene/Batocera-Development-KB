@@ -1,5 +1,5 @@
 # PR Status — mergerFS Merge Move Safe Masking Fix
 
-## No PR yet
+## Merged to batocera.linux
 
-[PR link and details added when created. Repo: batocera.linux]
+Resolved via batocera.linux merge. Safe masking logic implemented and deployed.

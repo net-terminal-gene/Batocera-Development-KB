@@ -170,3 +170,12 @@ From the Vault, the following existing pages are relevant:
 - `raw/crt-script-wiki/Emulation-Station-scaling-and-centering.md` -- ES at 640x480
 
 The Vault explicitly notes that 320x240 for ES UI is "not officially supported" due to theme limitations. This project aims to change that.
+
+---
+
+## KB maintenance (2026-04-16)
+
+Supporting research for this session. **Outcome:** `../VERDICT.md`. **PR:** `../pr-status.md`.
+
+Vault: `Vault-Batocera/wiki/sources/batocera-development-kb.md` (session table), `wiki/concepts/development-contributions.md`, `wiki/concepts/active-work.md`.
+

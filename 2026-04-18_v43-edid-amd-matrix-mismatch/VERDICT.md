@@ -17,7 +17,7 @@ On a **Navi 32 (RX 7700/7800 XT)** system, **Batocera 43**, **X11-only** (no Way
 
 3. **769×576 width** — **Not** proof of the NVIDIA-only branch. v43 applies an **EDID horizontal pre-bump** for **AMD/ATI** as well (~`Batocera-CRT-Script-v43.sh` ~3640). Use **`edid-decode`** + **`EDID build:`** line to judge matrix, not width alone ([05](debug/pre-fix/05-mode-switcher-hd-to-crt-no-boot-recognition.md), [research](research/README.md)).
 
-4. **“Why do I have to pick CRT boot again?”** — **Expected** when **`global.videomode=default`** in HD mode: live **`batocera.conf`** has no **`Boot_*`** line. **`mode_backups/`** under **`Batocera-CRT-Script-Backup`** is the switcher’s persisted triple; after the **first** full save from HD mode, **`Config check`** can show **Boot** populated ([05](debug/pre-fix/05-mode-switcher-hd-to-crt-no-boot-recognition.md), [10](debug/pre-fix/10-mode-switcher-hd-to-crt-pre-reboot.md)). This is **workflow / clarity**, not an EDID corruption bug.
+4. **“Why do I have to pick CRT boot again?”** — **Expected** when **`global.videomode=default`** in HD mode: live **`batocera.conf`** has no **`Boot_*`** line. **`mode_backups/`** under **`Batocera-CRT-Script-Backup`** is the switcher’s persisted triple; after the **first** full save from HD mode, **`Config check`** can show **Boot** populated ([05](debug/pre-fix/05-mode-switcher-hd-to-crt-no-boot-recognition.md), [10](debug/pre-fix/10-mode-switcher-hd-to-crt-pre-reboot.md)). This is **workflow / clarity**, not an EDID corruption bug. **Code follow-up (2026-04-19):** **`crt_boot_display.txt`** sidecar in **`02_hd_output_selection.sh`** plus **`03_backup_restore.sh`** updates so **`get_crt_boot_resolution`** can still read a saved **`Boot_*`** display name after **CRT→HD** sync overwrote **`video_mode.txt`** ([09A](debug/fix/09A-boot-resolution-reprompt-after-crt-to-hd-save.md)). Does **not** change the **external EDID-matrix** verdict; improves **boot-resolution** persistence UX.
 
 **Conclusion:** In this lab, **nothing is wrong** with the **AMD matrix branch** or **mode switcher** regarding **wrong superres EDID**. The **external** report remains **unexplained** until the same evidence is captured on the failing machine.
 
@@ -43,7 +43,9 @@ On a **Navi 32 (RX 7700/7800 XT)** system, **Batocera 43**, **X11-only** (no Way
 
 | Repo | File | Change |
 |------|------|--------|
-| Batocera-CRT-Script | — | **None** (investigation only). |
+| Batocera-CRT-Script | `Geometry_modeline/mode_switcher_modules/02_hd_output_selection.sh` | Persist **`Boot_*`** to **`mode_backups/.../crt_boot_display.txt`**; **`get_crt_boot_resolution`** prefers sidecar when **`video_mode.txt`** no longer carries **`Boot_*`** (CRT→HD path). |
+| Batocera-CRT-Script | `Geometry_modeline/mode_switcher_modules/03_backup_restore.sh` | **Backup/restore** updates aligned with mode switcher state (same branch as **#390** / **#395** work). |
+| Batocera-Development-KB | `2026-04-18_v43-edid-amd-matrix-mismatch/debug/fix-wayland/*` | **Wayland + X11 dual-boot** debug ladder (**00–09**) and **`debug/README.md`** index. |
 
 ## What would change the verdict
 
@@ -52,4 +54,4 @@ On a **Navi 32 (RX 7700/7800 XT)** system, **Batocera 43**, **X11-only** (no Way
 
 ## Models / session
 
-- Investigation and debug notes: Composer + SSH snapshots ([`debug/pre-fix/00`–`10`](debug/pre-fix/), 2026-04-18–19); post-fix logs in [`debug/fix/`](debug/fix/).
+- Investigation and debug notes: Composer + SSH snapshots ([`debug/pre-fix/00`–`10`](debug/pre-fix/), 2026-04-18–19); post-fix logs in [`debug/fix/`](debug/fix/); **Wayland dual-boot** ladder [`debug/fix-wayland/`](debug/fix-wayland/) (**00–09**).

@@ -4,6 +4,8 @@
 
 Composer + ssh-batocera for log retrieval. Investigation only until logs arrive — fix scope TBD.
 
+**Lab scope:** **X11 only** (xorg, xrandr). Local debug and numbered `debug/pre-fix/*.md` entries do **not** exercise **Wayland** or the **two-kernel** HD/X11 dual-boot path (PR #395). “HD” in logs means **HDMI / desktop output on the same X11 stack**, not a Wayland boot. Post-fix captures go in `debug/fix/`.
+
 ## Problem
 
 Tester (AMD RX6400 XT) reports that on a v43 install re-run after an HD↔CRT round trip, the regenerated `/lib/firmware/edid/generic_15.bin` contains the wrong modeset.

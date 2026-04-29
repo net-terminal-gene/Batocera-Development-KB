@@ -8,16 +8,17 @@ This repository preserves research, design documents, debug logs, and verdicts f
 
 ## Structure
 
-Each top-level directory is a timestamped session covering a specific development effort:
+All timestamped sessions are located in the `entries/` directory. Each session covers a specific development effort:
 
 ```
-YYYY-MM-DD_short-description/
-├── design/        — architecture and flow documents
-├── research/      — live system findings and technical analysis
-├── debug/         — step-by-step test logs and bug investigations
-├── plan.md        — implementation plan for the session
-├── pr-status.md   — PR tracking (required for new entries)
-└── VERDICT.md     — session retrospective and final assessment
+entries/
+└── YYYY-MM-DD_short-description/
+    ├── design/        — architecture and flow documents
+    ├── research/      — live system findings and technical analysis
+    ├── debug/         — step-by-step test logs and bug investigations
+    ├── plan.md        — implementation plan for the session
+    ├── pr-status.md   — PR tracking (required for new entries)
+    └── VERDICT.md     — session retrospective and final assessment
 ```
 
 **pr-status.md is required for all new entries.** Update it when a PR is created, merged, or closed. Use "No PR yet" or similar until a PR exists.
@@ -60,7 +61,7 @@ Tracks the Pull Request for the session. Example:
 - [ ] Item 2
 ```
 
-See `2026-01-26_hd-crt-mode-switcher/pr-status.md` for a full example.
+See `entries/2026-01-26_hd-crt-mode-switcher/pr-status.md` for a full example.
 
 ### VERDICT.md
 

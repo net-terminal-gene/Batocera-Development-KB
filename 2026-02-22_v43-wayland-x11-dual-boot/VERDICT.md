@@ -1,7 +1,10 @@
 # Final Verdict: v43 Wayland/X11 Dual-Boot Development
 
-**Date:** 2026-02-22
-**Result:** Core feature working. CRT tools visible on physical CRT after full HD↔CRT roundtrips.
+**Status:** MERGED (PR #395, 2026-04-23)
+
+**Date:** 2026-02-22 (session start) → 2026-04-23 (merge)
+
+**Result:** Wayland/X11 dual-kernel architecture implemented, tested on AMD, merged into Batocera-CRT-Script main branch with v43. CRT tools visible on physical CRT after full HD↔CRT roundtrips.
 
 ---
 

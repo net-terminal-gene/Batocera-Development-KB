@@ -1,33 +1,26 @@
-# PR Status — CRT Installer: Bootstrap global.videomode and global.videooutput
+# PR Status - CRT Installer: Bootstrap global.videooutput, global.videomode, es.resolution
 
-## PR #390 (v42 — crt-hd-mode-switcher)
+## PR #395 (MERGED 2026-04-23)
 
-| Field | Value |
-|-------|-------|
-| Repo | ZFEbHVUE/Batocera-CRT-Script |
-| PR | [#390](https://github.com/ZFEbHVUE/Batocera-CRT-Script/pull/390) |
-| Branch | `net-terminal-gene:crt-hd-mode-switcher` → `main` |
-| Status | **OPEN (Draft)** |
+|| Field | Value |
+||-------|-------|
+|| Repo | ZFEbHVUE/Batocera-CRT-Script |
+|| PR | [#395](https://github.com/ZFEbHVUE/Batocera-CRT-Script/pull/395) |
+|| Branch | `crt-hd-mode-switcher-v43` → `main` |
+|| Status | **MERGED** (2026-04-23) |
 
-Change not yet implemented in this branch.
+Changes implemented in both `Batocera-CRT-Script-v42.sh` (Inserts A/B/C at lines ~4301/4350/4370) and `Batocera-CRT-Script-v43.sh` (Inserts A/B/C at lines ~5333/5380/5402).
 
----
+- **Insert A:** Capture HD baseline, derive boot mode key from videomodes.conf
+- **Insert B:** Write `global.videomode`/`global.videooutput` to batocera.conf; pre-seed backup dirs
+- **Insert C:** Fix `es.resolution` to use correct videomodes.conf key (not WxH.rate.00000)
 
-## PR #395 (v43 — crt-hd-mode-switcher-v43)
+See `VERDICT.md` for full testing details.
 
-| Field | Value |
-|-------|-------|
-| Repo | ZFEbHVUE/Batocera-CRT-Script |
-| PR | [#395](https://github.com/ZFEbHVUE/Batocera-CRT-Script/pull/395) |
-| Branch | `net-terminal-gene:crt-hd-mode-switcher-v43` → `main` |
-| Status | **OPEN (Draft)** |
+## Completed
 
-Change not yet implemented in this branch.
-
-## Outstanding Items
-
-- [ ] Implement Steps 1–4 in `Batocera-CRT-Script-v42.sh`
-- [ ] Implement Steps 1–4 in `Batocera-CRT-Script-v43.sh`
-- [ ] Test on v42 hardware (Mikey's BC-250, Philips CRT)
-- [ ] Test on v43 Wayland dual-boot hardware
-- [ ] Remove wiki post-installation manual steps once confirmed working
+- [x] ES Video Mode shows correct Boot_ entry after first CRT boot
+- [x] `global.videooutput` persists in batocera.conf
+- [x] Mode switcher backup dirs pre-seeded with correct format
+- [x] CRT → HD → CRT roundtrip works
+- [x] Merged in PR #395

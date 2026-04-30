@@ -40,7 +40,7 @@ No mechanism exists to switch modes without a display. The mode switcher (`mode_
 
 ## Solution
 
-Uses triggerhappy (`multimedia_keys.conf`) and a shell script for the mode switch. This follows the **exact same pattern** the CRT Script already uses for RIGHTALT+F1/F2/F3 shortcuts. **No new daemons.** Linux force feedback is not practical from bash alone, so a **one-shot** helper (recommended: small `python3` + `evdev` script using `FF_RUMBLE`, invoked only after guards pass) delivers the vibration pulse. That is not a background listener; it exits immediately after rumble.
+Uses triggerhappy (`multimedia_keys.conf`) and a shell script. This follows the **exact same pattern** the CRT Script already uses for RIGHTALT+F1/F2/F3 shortcuts. No Python. No new daemons. Vibration feedback (best-effort; not all controllers support force feedback).
 
 ### 1. Triggerhappy entry (`multimedia_keys.conf`)
 
@@ -56,14 +56,15 @@ Triggerhappy supports up to 5 modifiers per event (1 primary + 5 modifiers = 6 b
 
 Small shell script installed to `/usr/bin/` (same as `esrestart`, `xrestart`, `emukill`):
 
-1. Sleep 5 seconds (hold requirement -- if the user releases, the switch still runs, but the 6-button chord prevents accidental triggers)
-2. Check current mode is CRT (no-op if HD)
-3. Check HD backup exists (no-op if missing)
-4. Short **rumble** (force feedback) to confirm the switch is proceeding (best-effort if `EV_FF` is unavailable or the device is grabbed)
-5. Source mode switcher modules
+1. Sleep 5 seconds (hold requirement; the 6-button chord already prevents accidental triggers)
+2. Source mode switcher modules (`01_mode_detection.sh`, `03_backup_restore.sh`)
+3. Check current mode is CRT (no-op if HD)
+4. Check HD backup exists (no-op if missing)
+5. Short **rumble** (force feedback) to confirm the switch is proceeding (best-effort; no-op if controller lacks `EV_FF`)
 6. `backup_mode_files "crt"` + `restore_mode_files "hd"`
-7. `sync`
-8. `poweroff` (dual-boot) or `reboot` (single-boot)
+7. Mirror the pre-reboot `es_systems_crt.cfg` copy/touch/sync block from `mode_switcher.sh` so behavior matches the UI path
+8. `sync`
+9. `poweroff` (dual-boot) or `reboot` (single-boot)
 
 ### 3. Headless mode switch logic (in the combo handler or a separate `mode_switch_headless.sh`)
 
@@ -74,7 +75,6 @@ Sources the existing mode switcher modules (`01_mode_detection.sh`, `03_backup_r
 Deployed identically to existing multimedia keys:
 - `multimedia_keys.conf` updated with the new line
 - `crt-mode-switch-combo` copied to `/usr/bin/` and `chmod 755`
-- Optional: `crt-mode-switch-rumble.py` (or equivalent) copied to `/usr/bin/` if kept as a separate file for the haptic pulse
 - Done in the ALLINONE installer, same block as `esrestart`/`xrestart`/`emukill`
 - No changes to `boot-custom.sh`
 - No new daemons or services
@@ -86,8 +86,7 @@ Deployed identically to existing multimedia keys:
 |------|------|--------|
 | Batocera-CRT-Script | `extra/media_keys/multimedia_keys.conf` | Add BTN combo line |
 | Batocera-CRT-Script | `extra/media_keys/crt-mode-switch-combo` | New: combo handler script |
-| Batocera-CRT-Script | `extra/media_keys/crt-mode-switch-rumble.py` | New (optional): one-shot `evdev` FF_RUMBLE pulse for blind confirmation |
-| Batocera-CRT-Script | `Batocera_ALLINONE/Batocera-CRT-Script*.sh` | Modified: deploy new script(s) during install |
+| Batocera-CRT-Script | `Batocera_ALLINONE/Batocera-CRT-Script*.sh` | Modified: deploy new script during install |
 
 ## Validation
 
@@ -99,11 +98,12 @@ Deployed identically to existing multimedia keys:
 - [ ] System reboots into working HD Mode after combo trigger
 - [ ] No-op when already in HD Mode
 - [ ] No-op when HD settings backup doesn't exist
-- [ ] Haptic pulse works on target hardware (`EV_FF` / rumble motor), or fails silently without blocking the switch
+- [ ] Vibration feedback works on target hardware (best-effort; switch proceeds even without it)
 - [ ] L2/R2 trigger as BTN_TL2/BTN_TR2 on target controllers (not analog-only axes)
 
 ## Open Questions
 
+- **HD backup predicate:** `restore_mode_files hd` may behave differently for an empty `hd_mode` tree vs missing backup (see `03_backup_restore.sh`). Decide strict “user must have switched once” vs permissive match to `restore_mode_files` success; document in script header.
 - **BTN_SELECT vs BTN_BACK:** Some controllers report SELECT as `BTN_SELECT`, others as `BTN_BACK`. Need `evtest` on target hardware to confirm.
 - **L2/R2 as analog axes:** If the target controller reports L2/R2 as `ABS_Z`/`ABS_RZ` (analog axes) instead of `BTN_TL2`/`BTN_TR2` (digital buttons), triggerhappy cannot detect them (it handles `EV_KEY` events, not `EV_ABS`). May need to adjust the combo to use different buttons, or fall back to the Python listener approach (see Backup section).
 - **Modifier order:** Triggerhappy requires the modifier buttons to be held when the primary event fires. The order in the config line matters. May need testing to find which button should be "primary" (the last one pressed).
@@ -133,7 +133,7 @@ Same as the primary approach: sources modules, runs backup/restore, reboots.
 
 ### Why this is backup (not primary)
 
-- Adds a **persistent** Python process where the primary path is triggerhappy + shell (plus only a **one-shot** Python helper for rumble, not a daemon)
+- Adds a Python dependency where the rest of the CRT Script is pure shell
 - Requires a new persistent daemon (more moving parts)
 - Needs integration with `boot-custom.sh` (which is already complex and mode-dependent)
 - Does not follow established CRT Script patterns (`multimedia_keys.conf` is the existing pattern)

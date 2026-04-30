@@ -35,4 +35,4 @@ test -f /userdata/system/videomodes.conf && echo "CRT Mode" || echo "HD Mode"
 | ES/games don't get controller input | Listener is grabbing the device (bug); must use passive read, no `device.grab()` |
 | Combo triggers during gameplay | Timer too short or button set too common; 2s hold + 6-button chord should prevent this |
 | Listener crashes on controller disconnect | Missing error handling for `ENODEV` on USB hot-unplug |
-| No audio/haptic feedback | ALSA not available at that boot stage, or controller doesn't support FF_RUMBLE |
+| No vibration before reboot | Controller lacks `EV_FF`, wrong evdev node, exclusive grab, or rumble helper failed; switch may still run |

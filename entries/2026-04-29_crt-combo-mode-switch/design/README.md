@@ -26,9 +26,8 @@
 │       │    /usr/bin/crt-mode-switch-combo                    │
 │       │         │                                            │
 │       │         ├── sleep 5 (hold/safety window)             │
-│       │         ├── audio beep                               │
-│       │         ├── detect_current_mode == "crt"?            │
-│       │         ├── HD backup exists?                        │
+│       │         ├── guards: CRT mode? HD backup OK?        │
+│       │         ├── short FF rumble (one-shot helper)        │
 │       │         ├── backup_mode_files "crt"                  │
 │       │         ├── restore_mode_files "hd"                  │
 │       │         ├── sync                                     │
@@ -45,7 +44,7 @@
 
 - **No new daemon.** Triggerhappy is already running at `S50`.
 - **No boot-custom.sh changes.** Nothing new to launch on boot.
-- **Pure shell.** The combo handler is a bash script, matching the rest of the CRT Script.
+- **Shell for the switch.** Combo handler is bash; **one-shot** `python3` + `evdev` (or equivalent) only for `FF_RUMBLE` haptics, not a listener process.
 - **Existing pattern.** Identical to how `esrestart`, `xrestart`, `emukill` are triggered.
 
 ## Combo Handler Flow (`crt-mode-switch-combo`)
@@ -58,8 +57,6 @@
   │      6-button chord itself is already near-impossible
   │      to hit accidentally)
   │
-  ├── Audio beep (speaker-test or aplay)
-  │
   ├── Source globals (SCRIPT_DIR, MODE_BACKUP_DIR, LOG_FILE, etc.)
   ├── Source 01_mode_detection.sh
   ├── Source 03_backup_restore.sh
@@ -67,8 +64,10 @@
   ├── Guard: detect_current_mode == "crt"?
   │     └── No → exit 0 (already HD, no-op)
   │
-  ├── Guard: HD backup exists? (hd_mode/ has batocera.conf)
-  │     └── No → exit 1 (nothing to restore)
+  ├── Guard: HD backup exists? (predicate TBD; see plan)
+  │     └── No → exit 0 (nothing to restore, silent)
+  │
+  ├── Short rumble: one-shot python/evdev FF_RUMBLE (best-effort)
   │
   ├── Log: "Combo mode switch triggered"
   ├── backup_mode_files "crt"
@@ -112,13 +111,11 @@ Format: `KEY_CODES  EVENT_VALUE  COMMAND`
 - Modifiers joined with `+`
 - Triggerhappy supports up to 5 modifiers (6 total keys)
 
-## Feedback Mechanism
+## Feedback Mechanism (primary path)
 
-```bash
-speaker-test -t sine -f 1000 -l 1 -p 1 2>/dev/null &
-```
+**Haptic, not audio:** after guards pass, invoke a **one-shot** helper (recommended: `python3` + `evdev`) that finds a joystick `event*` device with `EV_FF`, uploads a short `FF_RUMBLE` effect, plays ~200–500 ms, then exits. No `speaker-test` / `aplay` in the default flow.
 
-Simple 1kHz tone via ALSA. Available early in boot. No display needed.
+If the controller has no force feedback, the device is exclusively grabbed, or rumble fails, the mode switch still proceeds (silent best-effort).
 
 ## Safety Considerations
 
@@ -211,8 +208,7 @@ Register udev monitor for hotplug (add/remove)
 │               └── Yes ──→ TRIGGER! │
 │                       │            │
 │                       ▼            │
-│               Play audio beep      │
-│               or send FF_RUMBLE    │
+│               FF_RUMBLE (haptic)   │
 │                       │            │
 │                       ▼            │
 │               Exec mode_switch_headless.sh
@@ -245,4 +241,4 @@ import evdev
 device.write(evdev.ecodes.EV_FF, effect_id, 1)
 ```
 
-Not all controllers support FF_RUMBLE, so this is best-effort on top of audio.
+Not all controllers support `FF_RUMBLE`; primary path uses haptic only (no audio beep).

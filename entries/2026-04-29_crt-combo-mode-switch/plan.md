@@ -21,7 +21,7 @@ This is a dead end for non-technical users and a frustration for everyone.
 
 1. Same setup: handheld powers on, black screen (CRT Mode, no CRT attached)
 2. User holds **SELECT + START + L1 + L2 + R1 + R2** for 5 seconds
-3. Audio beep confirms the combo was detected and the switch is starting
+3. A short **controller vibration** (force feedback) confirms the combo was detected and the switch is starting
 4. System automatically switches to HD Mode using previously saved HD settings
 5. System reboots (or powers off for dual-boot)
 6. Device boots into HD Mode, LCD works, user can play
@@ -30,7 +30,7 @@ This is a dead end for non-technical users and a frustration for everyone.
 
 - **No timing required.** Triggerhappy (`thd`) runs as `S50triggerhappy` from early boot, well before EmulationStation. The combo is active as soon as `thd` starts. The user can press the combo at any point: during boot, at the ES menu, or minutes after boot.
 - **5-second hold requirement.** The triggered script sleeps 5 seconds before acting. This prevents accidental activation and gives the user confidence the system registered their intent. The 6-button chord itself is essentially impossible to hit during normal use.
-- **Blind-friendly.** The user has no screen. Feedback comes through audio (beep via `speaker-test` or `aplay`) to confirm "switching now."
+- **Blind-friendly.** The user has no screen. Feedback is **haptic**: a brief rumble on the gamepad to confirm "switching now." No audio beep (silent in public or when speakers are off).
 - **No-op safety.** If the system is already in HD Mode, the script exits silently. If HD settings have never been saved (no prior mode switch), the script exits silently.
 - **Does not interfere with gameplay.** The 6-button combo is impossible to hit during normal use. No game or menu maps all 6 of these buttons simultaneously.
 
@@ -40,7 +40,7 @@ No mechanism exists to switch modes without a display. The mode switcher (`mode_
 
 ## Solution
 
-Uses triggerhappy (`multimedia_keys.conf`) and a shell script. This follows the **exact same pattern** the CRT Script already uses for RIGHTALT+F1/F2/F3 shortcuts. No Python. No new daemons.
+Uses triggerhappy (`multimedia_keys.conf`) and a shell script for the mode switch. This follows the **exact same pattern** the CRT Script already uses for RIGHTALT+F1/F2/F3 shortcuts. **No new daemons.** Linux force feedback is not practical from bash alone, so a **one-shot** helper (recommended: small `python3` + `evdev` script using `FF_RUMBLE`, invoked only after guards pass) delivers the vibration pulse. That is not a background listener; it exits immediately after rumble.
 
 ### 1. Triggerhappy entry (`multimedia_keys.conf`)
 
@@ -57,9 +57,9 @@ Triggerhappy supports up to 5 modifiers per event (1 primary + 5 modifiers = 6 b
 Small shell script installed to `/usr/bin/` (same as `esrestart`, `xrestart`, `emukill`):
 
 1. Sleep 5 seconds (hold requirement -- if the user releases, the switch still runs, but the 6-button chord prevents accidental triggers)
-2. Audio beep to confirm
-3. Check current mode is CRT (no-op if HD)
-4. Check HD backup exists (no-op if missing)
+2. Check current mode is CRT (no-op if HD)
+3. Check HD backup exists (no-op if missing)
+4. Short **rumble** (force feedback) to confirm the switch is proceeding (best-effort if `EV_FF` is unavailable or the device is grabbed)
 5. Source mode switcher modules
 6. `backup_mode_files "crt"` + `restore_mode_files "hd"`
 7. `sync`
@@ -74,7 +74,8 @@ Sources the existing mode switcher modules (`01_mode_detection.sh`, `03_backup_r
 Deployed identically to existing multimedia keys:
 - `multimedia_keys.conf` updated with the new line
 - `crt-mode-switch-combo` copied to `/usr/bin/` and `chmod 755`
-- Both done in the ALLINONE installer, same block as `esrestart`/`xrestart`/`emukill`
+- Optional: `crt-mode-switch-rumble.py` (or equivalent) copied to `/usr/bin/` if kept as a separate file for the haptic pulse
+- Done in the ALLINONE installer, same block as `esrestart`/`xrestart`/`emukill`
 - No changes to `boot-custom.sh`
 - No new daemons or services
 - Triggerhappy picks up the config automatically (already reads `/userdata/system/configs/multimedia_keys.conf`)
@@ -85,7 +86,8 @@ Deployed identically to existing multimedia keys:
 |------|------|--------|
 | Batocera-CRT-Script | `extra/media_keys/multimedia_keys.conf` | Add BTN combo line |
 | Batocera-CRT-Script | `extra/media_keys/crt-mode-switch-combo` | New: combo handler script |
-| Batocera-CRT-Script | `Batocera_ALLINONE/Batocera-CRT-Script*.sh` | Modified: deploy new script during install |
+| Batocera-CRT-Script | `extra/media_keys/crt-mode-switch-rumble.py` | New (optional): one-shot `evdev` FF_RUMBLE pulse for blind confirmation |
+| Batocera-CRT-Script | `Batocera_ALLINONE/Batocera-CRT-Script*.sh` | Modified: deploy new script(s) during install |
 
 ## Validation
 
@@ -97,7 +99,7 @@ Deployed identically to existing multimedia keys:
 - [ ] System reboots into working HD Mode after combo trigger
 - [ ] No-op when already in HD Mode
 - [ ] No-op when HD settings backup doesn't exist
-- [ ] Audio feedback works (speaker-test or aplay)
+- [ ] Haptic pulse works on target hardware (`EV_FF` / rumble motor), or fails silently without blocking the switch
 - [ ] L2/R2 trigger as BTN_TL2/BTN_TR2 on target controllers (not analog-only axes)
 
 ## Open Questions
@@ -121,7 +123,7 @@ If triggerhappy cannot reliably detect the combo (e.g. L2/R2 are analog-only on 
 - Passively reads (no grab) all controller evdev devices
 - Tracks button state per device; when all 6 target buttons are held for 5 continuous seconds, triggers the switch
 - Handles both digital buttons (`EV_KEY`) and analog triggers (`EV_ABS` with threshold)
-- Provides audio/haptic feedback on activation
+- Provides haptic feedback on activation (same as primary path: vibration; optional audio only if ever added)
 - Near-zero CPU when idle (blocks on `poll()`)
 - Exits cleanly on SIGTERM
 
@@ -131,7 +133,7 @@ Same as the primary approach: sources modules, runs backup/restore, reboots.
 
 ### Why this is backup (not primary)
 
-- Adds a Python dependency where the rest of the CRT Script is pure shell
+- Adds a **persistent** Python process where the primary path is triggerhappy + shell (plus only a **one-shot** Python helper for rumble, not a daemon)
 - Requires a new persistent daemon (more moving parts)
 - Needs integration with `boot-custom.sh` (which is already complex and mode-dependent)
 - Does not follow established CRT Script patterns (`multimedia_keys.conf` is the existing pattern)

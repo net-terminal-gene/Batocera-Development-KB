@@ -1,6 +1,10 @@
 # Debug — CRT Combo Mode Switch
 
-## Verification
+Operator doc: **`02-crt-mode-switch-combo-debug-operator.md`** (`crt-mode-switch-combo.debug` dry-run, wiki blurb).
+
+## Verification (legacy / alternate designs)
+
+The snippets below target the **original** backup design (`crt_combo_listener.py`, `boot-custom.sh`). The **shipped Deck path** uses **`crt_mode_switch_watcher`** + **`crt-mode-switch-combo`** instead; keep these commands only if that backup stack is enabled on a branch.
 
 ```bash
 # Check if combo listener is running
@@ -36,3 +40,4 @@ test -f /userdata/system/videomodes.conf && echo "CRT Mode" || echo "HD Mode"
 | Combo triggers during gameplay | Timer too short or button set too common; 2s hold + 6-button chord should prevent this |
 | Listener crashes on controller disconnect | Missing error handling for `ENODEV` on USB hot-unplug |
 | No vibration before reboot | Controller lacks `EV_FF`, wrong evdev node, exclusive grab, or rumble helper failed; switch may still run |
+| **Haptics but no shutdown** | **`/userdata/system/crt-mode-switch-combo.debug`** still present (dry-run). Remove for full path. |

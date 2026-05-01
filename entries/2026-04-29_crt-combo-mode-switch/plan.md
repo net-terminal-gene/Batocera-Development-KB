@@ -1,5 +1,7 @@
 # CRT Combo Mode Switch (Controller Combo to Switch CRT → HD)
 
+> **KB convention:** `plan.md` is the **session-start** implementation plan (first intent). **`VERDICT.md`** records **plan vs reality** after development (how far shipped work diverged). See repository **`README.md`** → **VERDICT.md**. Late discoveries belong in **`design/`** and **`VERDICT.md`**, not by rewriting this file to match reality.
+
 ## Problem
 
 When a handheld running CRT Mode is powered on without a CRT display attached (e.g. traveling, forgot to switch to HD Mode before leaving), the user gets a **permanent black screen**. The 15kHz CRT output cannot drive the handheld's built-in LCD. There is no way to switch to HD Mode without SSH access or plugging into a CRT.
@@ -75,7 +77,7 @@ Sources the existing mode switcher modules (`01_mode_detection.sh`, `03_backup_r
 Deployed identically to existing multimedia keys:
 - `multimedia_keys.conf` updated with the new line
 - `crt-mode-switch-combo` copied to `/usr/bin/` and `chmod 755`
-- Done in the ALLINONE installer, same block as `esrestart`/`xrestart`/`emukill`
+- Done in the **v43** ALLINONE installer, same block as `esrestart`/`xrestart`/`emukill`
 - No changes to `boot-custom.sh`
 - No new daemons or services
 - Triggerhappy picks up the config automatically (already reads `/userdata/system/configs/multimedia_keys.conf`)
@@ -86,7 +88,23 @@ Deployed identically to existing multimedia keys:
 |------|------|--------|
 | Batocera-CRT-Script | `extra/media_keys/multimedia_keys.conf` | Add BTN combo line |
 | Batocera-CRT-Script | `extra/media_keys/crt-mode-switch-combo` | New: combo handler script |
-| Batocera-CRT-Script | `Batocera_ALLINONE/Batocera-CRT-Script*.sh` | Modified: deploy new script during install |
+| Batocera-CRT-Script | `Batocera_ALLINONE/Batocera-CRT-Script-v43.sh` | Modified: deploy new script during install |
+
+## Git (commits)
+
+When committing `crt-mode-switch-combo`, record the executable bit in the index so clones and PRs keep `755`:
+
+```bash
+git add --chmod=+x -- path/to/extra/media_keys/crt-mode-switch-combo
+```
+
+If the file is already staged without the bit, either re-add with `--chmod=+x` or:
+
+```bash
+git update-index --chmod=+x path/to/extra/media_keys/crt-mode-switch-combo
+```
+
+(Adjust the path to match the repo layout, e.g. under `userdata/system/Batocera-CRT-Script/extra/media_keys/` in this workspace.)
 
 ## Validation
 
@@ -150,5 +168,19 @@ Same as the primary approach: sources modules, runs backup/restore, reboots.
 |------|------|--------|
 | Batocera-CRT-Script | `Geometry_modeline/crt_combo_listener.py` | New: combo listener daemon |
 | Batocera-CRT-Script | `Geometry_modeline/mode_switch_headless.sh` | New: non-interactive CRT→HD switch |
-| Batocera-CRT-Script | `Batocera_ALLINONE/Batocera-CRT-Script*.sh` | Modified: deploy new files during install |
+| Batocera-CRT-Script | `Batocera_ALLINONE/Batocera-CRT-Script-v43.sh` | Modified: deploy new files during install |
 | Boot partition | `/boot/boot-custom.sh` | Modified: start combo listener daemon in background |
+
+---
+
+## Appendix (2026-05-01): Operator reference (post-ship)
+
+Do not rewrite the plan body above; this appendix points at shipped behavior and ops docs.
+
+| Topic | Where |
+|--------|--------|
+| Optional **`crt-mode-switch-combo.debug`** dry-run (haptic only, no HD restore, no shutdown) | **`debug/02-crt-mode-switch-combo-debug-operator.md`** |
+| Plan vs shipped narrative | **`VERDICT.md`** |
+| Deck watcher, logging, why not only triggerhappy | **`design/README.md`** |
+
+**First-time user requirement:** blind CRT→HD restore requires a prior **HD mode backup** from the UI switcher (`hd_mode/mode_metadata.txt` with **`MODE=hd`**). Otherwise the combo exits after guards with a log line (no bricking restore).

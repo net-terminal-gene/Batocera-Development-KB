@@ -1,244 +1,188 @@
 # Design — CRT Combo Mode Switch
 
-## Architecture (Primary: Triggerhappy)
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│  Boot Sequence                                               │
-│                                                              │
-│  S00bootcustom ─── boot-custom.sh                            │
-│       │                 │                                    │
-│       │                 └── (existing CRT tasks only)        │
-│       ▼                                                      │
-│  S14labwc/X11                                                │
-│       │                                                      │
-│       ▼                                                      │
-│  S31emulationstation                                         │
-│       │                                                      │
-│       ▼                                                      │
-│  S50triggerhappy ──→ reads multimedia_keys.conf              │
-│       │                    │                                 │
-│       │    ┌───────────────┘                                 │
-│       │    ▼                                                 │
-│       │    BTN_SELECT+BTN_START+BTN_TL+BTN_TR+BTN_TL2+BTN_TR2
-│       │         │                                            │
-│       │         ▼                                            │
-│       │    /usr/bin/crt-mode-switch-combo                    │
-│       │         │                                            │
-│       │         ├── sleep 5 (hold/safety window)             │
-│       │         ├── guards: CRT mode? HD backup OK?        │
-│       │         ├── short FF rumble (one-shot helper)        │
-│       │         ├── backup_mode_files "crt"                  │
-│       │         ├── restore_mode_files "hd"                  │
-│       │         ├── sync                                     │
-│       │         └── poweroff / reboot                        │
-│       ▼                                                      │
-│  S90hotkeygen                                                │
-│       │                                                      │
-│       ▼                                                      │
-│  (system running)                                            │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### Key differences from backup approach
-
-- **No new daemon.** Triggerhappy is already running at `S50`.
-- **No boot-custom.sh changes.** Nothing new to launch on boot.
-- **Shell for the switch.** Combo handler is bash; **one-shot** `python3` + `evdev` (or equivalent) only for `FF_RUMBLE` haptics, not a listener process.
-- **Existing pattern.** Identical to how `esrestart`, `xrestart`, `emukill` are triggered.
-
-## Combo Handler Flow (`crt-mode-switch-combo`)
-
-```
-/usr/bin/crt-mode-switch-combo
-  │
-  ├── sleep 5
-  │     (provides accidental-trigger protection;
-  │      6-button chord itself is already near-impossible
-  │      to hit accidentally)
-  │
-  ├── Source globals (SCRIPT_DIR, MODE_BACKUP_DIR, LOG_FILE, etc.)
-  ├── Source 01_mode_detection.sh
-  ├── Source 03_backup_restore.sh
-  │
-  ├── Guard: detect_current_mode == "crt"?
-  │     └── No → exit 0 (already HD, no-op)
-  │
-  ├── Guard: HD backup exists? (predicate TBD; see plan)
-  │     └── No → exit 0 (nothing to restore, silent)
-  │
-  ├── Short rumble: one-shot python/evdev FF_RUMBLE (best-effort)
-  │
-  ├── Log: "Combo mode switch triggered"
-  ├── backup_mode_files "crt"
-  ├── restore_mode_files "hd"
-  ├── sync; sync
-  │
-  └── is_dualboot_system?
-        ├── Yes → poweroff
-        └── No  → reboot
-```
-
-## Target Buttons (evdev mapping)
-
-| Logical Button | Triggerhappy Code | Notes |
-|---------------|-------------------|-------|
-| SELECT | BTN_SELECT | Some controllers use BTN_BACK |
-| START | BTN_START | Some controllers use BTN_FORWARD |
-| L1 | BTN_TL | Left shoulder |
-| R1 | BTN_TR | Right shoulder |
-| L2 | BTN_TL2 | Left trigger (digital) |
-| R2 | BTN_TR2 | Right trigger (digital) |
-
-### L2/R2 concern
-
-Triggerhappy handles `EV_KEY` events. If a controller reports L2/R2 as `ABS_Z`/`ABS_RZ` (analog axes only, no digital `BTN_TL2`/`BTN_TR2`), triggerhappy won't see them. In that case, either:
-- Swap L2/R2 for different buttons in the combo, or
-- Fall back to the Python listener (backup approach)
-
-Handheld built-in controls typically use digital buttons, so this is primarily a concern for external Xbox-style pads.
-
-## Multimedia Keys Config Entry
-
-Added to `extra/media_keys/multimedia_keys.conf`:
-
-```
-BTN_SELECT+BTN_START+BTN_TL+BTN_TR+BTN_TL2+BTN_TR2  1  /usr/bin/crt-mode-switch-combo
-```
-
-Format: `KEY_CODES  EVENT_VALUE  COMMAND`
-- `1` = trigger on key-down (press event)
-- Modifiers joined with `+`
-- Triggerhappy supports up to 5 modifiers (6 total keys)
-
-## Feedback Mechanism (primary path)
-
-**Haptic, not audio:** after guards pass, invoke a **one-shot** helper (recommended: `python3` + `evdev`) that finds a joystick `event*` device with `EV_FF`, uploads a short `FF_RUMBLE` effect, plays ~200–500 ms, then exits. No `speaker-test` / `aplay` in the default flow.
-
-If the controller has no force feedback, the device is exclusively grabbed, or rumble fails, the mode switch still proceeds (silent best-effort).
-
-## Safety Considerations
-
-1. **6-button chord.** Near-impossible accidental activation. No game uses all 6 simultaneously.
-2. **5-second sleep.** Additional protection even if the chord is somehow hit.
-3. **CRT-only activation.** Script checks `detect_current_mode` and exits if already HD.
-4. **Filesystem readiness.** Won't attempt the switch if `/userdata` isn't mounted.
-5. **Existing backup required.** Won't switch if there are no saved HD settings.
-6. **No controller grab.** Triggerhappy reads events without grabbing. ES and games still receive input.
-7. **No CRT damage risk.** CRT → HD is safe (CRT just loses signal). The dangerous direction (HD → CRT outputting wrong frequency) is not triggered.
+This document matches **shipped behavior** in Batocera-CRT-Script (v43 ALLINONE media-keys block) as of **2026-05**. Historical triggerhappy-only intent lives in **`plan.md`** (first draft).
 
 ---
 
-## Backup Design: Python evdev Combo Listener
+## Shipped architecture (two input paths)
 
-If the triggerhappy approach doesn't work on the target hardware (see L2/R2 concern above), here is the previously designed Python-based approach.
+| Path | When | Input | Handler |
+|------|------|--------|---------|
+| **A. Triggerhappy** | Boards where **`thd`** multi-`BTN_*` chords work | **`S50triggerhappy`** + **`multimedia_keys.conf`** | **`/usr/bin/crt-mode-switch-combo`** (bash) |
+| **B. Deck watcher** | **Steam Deck** (triggerhappy unreliable for this chord) | Batocera user service **`crt_mode_switch_watcher`** → **`crt-mode-switch-watcher.py`** | Spawns **`/bin/bash`** on **`crt-mode-switch-combo`** (same script as A) |
 
-### Architecture (Backup)
+Both paths end at the **same** **`crt-mode-switch-combo`** script. **`boot-custom.sh`** is **unchanged** for this feature (no persistent **`crt_combo_listener.py`** in the shipped Deck path).
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Boot Sequence                                          │
-│                                                         │
-│  S00bootcustom ─── boot-custom.sh                       │
-│       │                 │                               │
-│       │                 ├── (existing CRT tasks)         │
-│       │                 └── crt_combo_listener.py &      │
-│       │                          │                      │
-│       ▼                          ▼                      │
-│  S14labwc/X11          ┌──────────────────┐             │
-│       │                │  Combo Listener   │             │
-│       ▼                │  (persistent)     │             │
-│  S31emulationstation   │                   │             │
-│       │                │  poll() on evdev  │             │
-│       ▼                │  devices          │             │
-│  S90hotkeygen          │                   │             │
-│       │                │  Detects 6-button │             │
-│       ▼                │  chord held 5s    │             │
-│  (system running)      └────────┬─────────┘             │
-│                                 │                       │
-│                                 ▼                       │
-│                      mode_switch_headless.sh             │
-│                          │                              │
-│                          ├── detect_current_mode         │
-│                          ├── backup_mode_files "crt"     │
-│                          ├── restore_mode_files "hd"     │
-│                          ├── sync                        │
-│                          └── poweroff / reboot           │
-└─────────────────────────────────────────────────────────┘
-```
-
-### Combo Listener Flow (Backup)
+### Deck path (diagram)
 
 ```
-START
-  │
-  ▼
-Enumerate /dev/input/event* via pyudev
-  │
-  ▼
-Register poll() on all devices with EV_KEY capability
-  │
-  ▼
-Register udev monitor for hotplug (add/remove)
-  │
-  ▼
-┌──────────── Main Loop ────────────┐
-│                                    │
-│  poll() with 200ms timeout         │
-│       │                            │
-│       ├── udev event? ──→ add/remove device from poll set
-│       │                            │
-│       ├── EV_KEY event?            │
-│       │       │                    │
-│       │       ├── value=1 (press): mark button as held for this device
-│       │       │                    │
-│       │       └── value=0 (release): mark button as released
-│       │                            │
-│       └── timeout (no event)       │
-│               │                    │
-│               ▼                    │
-│  For each device: are all 6 target buttons held?
-│       │                            │
-│       ├── No ──→ reset that device's hold timer
-│       │                            │
-│       └── Yes ──→ has timer been running for ≥ 5s?
-│               │                    │
-│               ├── No ──→ continue (timer keeps counting)
-│               │                    │
-│               └── Yes ──→ TRIGGER! │
-│                       │            │
-│                       ▼            │
-│               FF_RUMBLE (haptic)   │
-│                       │            │
-│                       ▼            │
-│               Exec mode_switch_headless.sh
-│               (system reboots, listener dies with it)
-│                                    │
-└────────────────────────────────────┘
+crt_mode_switch_watcher (userdata/system/services)
+  └── python3 crt-mode-switch-watcher.py
+         ├── find one gamepad evdev node (name rank: "Steam Deck",
+         │     then "Valve Software Steam Deck Controller", etc.; skip Motion/Mouse/Virtual)
+         ├── require all chord keys in EV_KEY caps
+         ├── read_loop: SELECT+START+L1+L2 all down → spawn once (armed edge)
+         └── Popen: /bin/bash <combo>  (start_new_session; stdio to /dev/null)
+
+crt-mode-switch-combo (bash)
+  ├── flock on /tmp/crt-mode-switch-combo.lock (before blind sleep)
+  ├── sleep 5
+  ├── embedded python3: FF_RUMBLE (effect.u.ff_rumble_effect), then hidraw 0xEB fallback (Deck HID uevent)
+  ├── if /userdata/system/crt-mode-switch-combo.debug exists → exit 0 (haptic-only QA)
+  ├── guards (CRT install marker, CRT mode, HD backup metadata MODE=hd)
+  ├── backup_mode_files "crt" / restore_mode_files "hd"
+  ├── es_systems_crt.cfg mirror + sync (same idea as mode_switcher.sh)
+  ├── sleep 2
+  └── is_dualboot_system? → /sbin/poweroff else /sbin/reboot (+ shutdown fallbacks; PATH may lack /sbin)
 ```
 
-### Target Buttons — evdev mapping (Backup)
+### Triggerhappy path (diagram, when used)
 
-| Logical Button | evdev Typical | Notes |
-|---------------|---------------|-------|
-| SELECT | BTN_SELECT / BTN_BACK | Varies by controller |
-| START | BTN_START / BTN_FORWARD | Varies by controller |
-| L1 | BTN_TL | Left shoulder |
-| R1 | BTN_TR | Right shoulder |
-| L2 | BTN_TL2 or ABS_Z (axis) | May be analog trigger |
-| R2 | BTN_TR2 or ABS_RZ (axis) | May be analog trigger |
+```
+S50triggerhappy → multimedia_keys.conf
+  └── optional BTN_* lines (six-primary pattern or fewer) → bash crt-mode-switch-combo
+```
 
-### L2/R2 Analog Trigger Handling (Backup)
+**Deck `multimedia_keys.conf`:** chord is **not** implemented as **`BTN_*`** lines (commented / documented there); Deck uses the watcher instead.
 
-On Xbox-style controllers, L2/R2 are analog axes (`ABS_Z`/`ABS_RZ`), not buttons. The Python listener handles both:
-- **Digital triggers** (BTN_TL2/BTN_TR2): treat as button press/release
-- **Analog triggers** (ABS_Z/ABS_RZ): treat as "pressed" when value exceeds ~50% of axis range
+---
 
-### Controller Rumble Feedback (Backup)
+## Why Python for the Deck watcher (not “just shell”)
+
+The **CRT → HD blind switch** logic (backup, restore, shutdown) lives in **bash** (`crt-mode-switch-combo`), sourcing **`01_mode_detection.sh`** / **`03_backup_restore.sh`** like the UI mode switcher. Only **how we detect the chord on Deck** differs.
+
+### What we tried first: triggerhappy (`thd`) + shell
+
+**triggerhappy** is ideal where it works: **no extra long-lived process**, same pattern as **`esrestart`** / **`xrestart`**.
+
+On **Steam Deck**, **`thd`** proved **unreliable** for this multi-button chord: it listens across **`/dev/input/event*`** and chord rules use **`mods_equal`**-style matching. Extra held keys from **other nodes** can block the rule even when the physical chord is correct. Fixing that inside triggerhappy means fighting **global** input state, not adding one more config line.
+
+### Why not a pure shell script reading `/dev/input`?
+
+**evdev** is a binary **`struct input_event`** stream. A correct reader must open the right **`eventN`**, read in a loop, track **key state**, and handle errors / replug. That is **not** a few lines of portable **`sh`** without a helper binary. Implementations end up as **C**, **Python `evdev`**, or similar.
+
+### What Python buys here (narrow scope)
+
+1. **`python3` + `evdev`** are already on the Batocera image (same family as combo haptics).
+2. **`crt-mode-switch-watcher.py`** opens **one** ranked gamepad node, tracks **four** `EV_KEY` codes (`BTN_SELECT`, `BTN_START`, `BTN_TL`, `BTN_TL2`), **no grab**, then **spawns the bash combo**. No duplicate restore logic in Python.
+3. Combo haptics use embedded **`python3`** with **`FF_RUMBLE`**; on Batocera **`Effect`** uses **`effect.u.ff_rumble_effect`** (not **`effect.u.rumble`**).
+
+**Summary for leads:** Bash remains **source of truth** for mode files and **shutdown**. Python is only **device-scoped evdev** where **triggerhappy’s global chord model** is the wrong tool.
+
+---
+
+## Combo handler flow (`crt-mode-switch-combo`) — shipped order
+
+1. **`flock`** single-instance lock **before** `sleep 5` (parallel chord spawns must not each sleep then clobber state).
+2. **`sleep 5`** blind hold window (chord detection is separate: watcher or `thd` fires the script).
+3. **Haptics:** embedded Python scans `event*` (prefer name **`Steam Deck`**), **`FF_RUMBLE`** via **`ff_rumble_effect`**; hidraw **`0xEB`** fallback for Valve/Deck HID uevent gamepad nodes.
+4. **Optional:** if **`/userdata/system/crt-mode-switch-combo.debug`** exists → log and **exit 0** (no restore, no shutdown). Installer does **not** create this file.
+5. Guards: **`check_crt_script_installed`**, **`detect_current_mode`** == crt, HD backup predicate (**`mode_metadata.txt`** **`MODE=hd`**).
+6. **`backup_mode_files "crt"`**, **`restore_mode_files "hd"`**, **`es_systems_crt.cfg`** copy/touch/sync block, **`sleep 2`**.
+7. **`/sbin/poweroff`** (dual-boot: `/boot/crt/linux` + `initrd-crt.gz`) or **`/sbin/reboot`** / **`shutdown`** fallbacks.
+
+---
+
+## Target buttons — Steam Deck (shipped chord)
+
+| Logical | evdev |
+|---------|--------|
+| SELECT | `BTN_SELECT` |
+| START | `BTN_START` |
+| L1 | `BTN_TL` |
+| L2 | `BTN_TL2` |
+
+**R1/R2** are **not** part of the shipped Deck chord (reduces accidental overlap with **`thd`** modifier issues). Other handhelds may still use a **six-button** **`BTN_*`** **`multimedia_keys.conf`** pattern where **`thd`** works; see **`plan.md`** and optional lines below.
+
+---
+
+## Multimedia keys (`multimedia_keys.conf`)
+
+**Shipped Deck-oriented file:** documents that the blind chord is handled by **`crt_mode_switch_watcher`**; **do not** duplicate as **`BTN_*`** lines for Deck.
+
+**Optional six-line triggerhappy pattern** (for hardware where all six keys work with `thd`): each line uses a different **primary** key so keydown order does not miss the chord (see `triggerparser.c`: first token is primary; up to five modifiers).
+
+```
+BTN_SELECT+BTN_START+BTN_TL+BTN_TR+BTN_TL2+BTN_TR2  1  bash /usr/bin/crt-mode-switch-combo
+BTN_START+BTN_SELECT+BTN_TL+BTN_TR+BTN_TL2+BTN_TR2  1  bash /usr/bin/crt-mode-switch-combo
+BTN_TL+BTN_SELECT+BTN_START+BTN_TR+BTN_TL2+BTN_TR2  1  bash /usr/bin/crt-mode-switch-combo
+BTN_TR+BTN_SELECT+BTN_START+BTN_TL+BTN_TL2+BTN_TR2  1  bash /usr/bin/crt-mode-switch-combo
+BTN_TL2+BTN_SELECT+BTN_START+BTN_TL+BTN_TR+BTN_TR2  1  bash /usr/bin/crt-mode-switch-combo
+BTN_TR2+BTN_SELECT+BTN_START+BTN_TL+BTN_TR+BTN_TL2  1  bash /usr/bin/crt-mode-switch-combo
+```
+
+**L2/R2 concern (triggerhappy path only):** if L2/R2 are **analog axes** only, `thd` will not see them; use a different chord or a heavier Python listener (backup design below).
+
+---
+
+## Feedback mechanism (haptics)
+
+- **In combo, after the 5s sleep:** best-effort **`FF_RUMBLE`**; switch still runs if rumble fails.
+- **Not audio** in the default flow.
+- Deck **`evtest`** node for rumble is often named **`Steam Deck`** with **`FF_RUMBLE`**; python-evdev must use **`ff_rumble_effect`** on current Batocera.
+
+---
+
+## Safety considerations
+
+1. **Four-button chord on Deck** (still awkward in normal play); **5s** sleep adds margin.
+2. **CRT-only:** combo exits if not CRT mode.
+3. **HD backup required:** guard prevents restoring without a prior UI HD save (`MODE=hd`).
+4. **No grab** in the Deck watcher; games/ES keep input.
+5. **CRT → HD** direction only from this chord; HD → CRT remains the UI mode switcher.
+
+---
+
+## Logging / persistence
+
+- **`/userdata/system/logs/crt-script-mode-switch.log`**: combo + watcher (and mirrored legacy **`crt-mode-switch-watcher.log`** for combo lines via combo’s `_crt_script_log`).
+- Installer copies **`crt-mode-switch-combo`** and **`crt-mode-switch-watcher.py`** to **`/usr/bin`** and mirrors into **`userdata/.../extra/media_keys/`** so updates survive without overlay.
+
+---
+
+## Backup design: persistent Python listener (not shipped on Deck)
+
+**Reserved** if a board needs **multi-device** enumeration, **analog triggers**, or **`boot-custom.sh`** integration. **Not** the same component as **`crt-mode-switch-watcher.py`** (single node, four keys, spawn bash).
+
+### Architecture (backup)
+
+```
+S00bootcustom ─── boot-custom.sh
+       │                 ├── (existing CRT tasks)
+       │                 └── crt_combo_listener.py &
+       ▼                          │
+  (system running)         ┌──────┴──────┐
+                           │ persistent │
+                           │ poll evdev │
+                           │ 6-btn + 5s │
+                           └──────┬──────┘
+                                  ▼
+                         mode_switch_headless.sh (historical name)
+```
+
+### Combo listener flow (backup)
+
+```
+START → enumerate event* → poll → EV_KEY / optional ABS thresholds
+     → all 6 held ≥ 5s → FF_RUMBLE → exec headless switch script
+```
+
+### Target buttons — evdev mapping (backup)
+
+| Logical | evdev typical | Notes |
+|---------|---------------|--------|
+| SELECT | BTN_SELECT / BTN_BACK | varies |
+| START | BTN_START / BTN_FORWARD | varies |
+| L1 | BTN_TL | |
+| R1 | BTN_TR | |
+| L2 | BTN_TL2 or ABS_Z | analog-only needs listener logic |
+| R2 | BTN_TR2 or ABS_RZ | |
+
+### Controller rumble (backup snippet)
 
 ```python
 import evdev
 device.write(evdev.ecodes.EV_FF, effect_id, 1)
 ```
 
-Not all controllers support `FF_RUMBLE`; primary path uses haptic only (no audio beep).
+On Batocera, prefer the same **`ff_rumble_effect`** field usage as the shipped combo haptic block.

@@ -81,6 +81,41 @@ case "$1" in
 esac
 ```
 
+### CRT activation gates (HD safety, defense in depth)
+
+Do **not** rely on a single file check. `detect_current_mode()` in
+`mode_switcher_modules/01_mode_detection.sh` uses userdata hints (`videomodes.conf`,
+`batocera.conf` CRT markers). The HD/CRT Mode Switcher **removes**
+`/userdata/system/videomodes.conf` when switching to HD, but edge cases remain:
+dual-boot shared `/userdata` with stale CRT files while booted Wayland/HD,
+interrupted switches, or configs that still mention CRT while the session is HD-shaped.
+
+**Recommended gates (all conservative; default is pass-through):**
+
+1. **Switchres must exist:** If `/usr/bin/switchres` is missing or not executable,
+   always call `fcade.sh` only (current behavior). No CRT tooling, no mode changes.
+
+2. **Split “CRT installed” from “touch the display”:** Treat userdata checks as a
+   **hint**. Add a **runtime** signal before calling Switchres, e.g.
+   `batocera-resolution currentMode`: if the active mode is clearly HD (`default`,
+   typical desktop videomode), **skip** Switchres even if leftover CRT lines exist
+   in `batocera.conf`. If the active mode looks CRT-shaped (`Boot_*`, SR-style /
+   low-line modes used in this pipeline), **allow** the wrapper.
+
+3. **Dual-boot (v43):** If `is_dualboot_system` (see `01_mode_detection.sh`) is true,
+   also consider **which boot path is active** (Wayland/HD vs CRT/X11 stack). If
+   booted on the HD/Wayland side, **skip** Switchres even when CRT artifacts remain
+   on disk. Align detection with whatever the mode switcher already uses so there is
+   one source of truth.
+
+4. **Explicit opt-in for ambiguous setups:** e.g. touch file or config flag under
+   `/userdata/system/configs/` (exact path TBD during implementation). **Default off**
+   until auto-detection is validated on dual-boot + partial-switch scenarios; CRT
+   testers enable once.
+
+**Final rule:** Run Switchres path only when **(Switchres present)** AND **(opt-in OR
+(runtime says CRT-shaped AND not on HD boot path))**. Otherwise `fcade.sh "$URL"` only.
+
 ### Process Monitoring Strategy
 
 Because `fcade.sh` backgrounds `fcade` (which then spawns Wine + emulator), the
@@ -89,24 +124,30 @@ wrapper cannot simply wait for `fcade.sh` to exit. Strategy:
 ```bash
 switchres_fightcade_wrap() {
     local URL="$1"
+
+    if ! fightcade_should_use_switchres; then
+        $ADDONS_DIR/fightcade/Fightcade/emulator/fcade.sh "$URL"
+        return
+    fi
+
     # ... parse URL, lookup resolution, patch config ...
-    
+
     switchres $W $H $R -s -k   # switch and keep
-    
-    # Launch (returns immediately because fcade backgrounds)
+
     $ADDONS_DIR/fightcade/Fightcade/emulator/fcade.sh "$URL"
-    
-    # Wait for the actual emulator process to appear, then monitor
-    sleep 2  # let spawn chain settle
+
+    sleep 2
     while pgrep -f "fcadefbneo.exe|ggpofba-ng.exe|fcadesnes9x.exe|flycast.elf" >/dev/null 2>&1; do
         sleep 2
     done
-    
-    # Emulator exited (Game > Exit or match ended)
+
     restore_fbneo_config
-    restore_display  # xrandr back to ES resolution
+    restore_display
 }
 ```
+
+Implement `fightcade_should_use_switchres` using the gates in **CRT activation gates**
+above (not `videomodes.conf` alone).
 
 **Handles both TEST GAME and ONLINE MATCH identically:**
 - TEST GAME: user manually exits via Game > Exit, pgrep sees process gone
@@ -174,7 +215,8 @@ The implementation must account for possible rejection from either repo.
 ### Option A: BUA PR (current PoC path)
 
 Modify `fightcade/fightcade.sh` to generate a switchres-aware xdg-open shim.
-Graceful fallback: if `switchres` not present, shim behaves identically to today.
+Graceful fallback: if Switchres is absent **or** CRT activation gates fail (see
+`design/README.md` § CRT activation gates), shim behaves identically to today.
 
 **Pros:** Single install step, users get it automatically
 **Cons:** Requires BUA maintainer buy-in; adds CRT-specific code to a general addon

@@ -30,6 +30,15 @@ Wrap the game launch at the xdg-open shim level (PR #143):
 `switchres -s -l "fcade.sh ..."` because switchres would restore resolution
 the instant `fcade.sh` returns. Must use keep mode + active process monitoring.
 
+**HD / CRT gating (defense in depth):** Do not use `videomodes.conf` alone. The
+mode switcher removes it on HD switch, but dual-boot + shared userdata, interrupted
+switches, or stale `batocera.conf` CRT markers can mislead. Gates: (1) Switchres
+executable present; (2) userdata hints plus **runtime** check (e.g.
+`batocera-resolution currentMode` CRT-shaped vs HD/default); (3) dual-boot: skip
+Switchres when booted HD/Wayland path even if CRT files linger; (4) optional opt-in
+flag under `/userdata/system/configs/` until auto-detection is proven. Default:
+pass through to `fcade.sh` only.
+
 **Session model:** User stays in Fightcade room between games. Each game launch
 (TEST GAME or ONLINE MATCH) triggers a new `fcade://` URL. The shim blocks until
 that specific game exits, restores resolution, then returns. Next game launch
@@ -92,3 +101,6 @@ See `design/README.md` § Deployment Strategy for full details.
 - [ ] FBNeo config backup/restore automation
 - [ ] TEST GAME exit (manual Game > Exit)
 - [ ] ONLINE MATCH exit (automatic after rounds)
+- [ ] HD passthrough: no Switchres when gates fail (Switchres missing, runtime HD, dual-boot HD path, no opt-in)
+- [ ] Dual-boot: Wayland/HD boot + stale CRT userdata does not trigger Switchres
+- [ ] Opt-in path works when auto-detection is disabled or ambiguous

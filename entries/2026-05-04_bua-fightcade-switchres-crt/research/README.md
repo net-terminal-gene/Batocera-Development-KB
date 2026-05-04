@@ -2,6 +2,11 @@
 
 ## Findings
 
+### HD vs CRT detection for Fightcade gating
+
+See **`research/01-hd-crt-gating.md`** and session **`design/README.md`** § CRT activation gates.
+Userdata-only checks (`videomodes.conf`, `batocera.conf` grep) are insufficient alone.
+
 ### Fightcade Architecture on Batocera
 
 - Installed via BUA to `/userdata/system/add-ons/fightcade/`

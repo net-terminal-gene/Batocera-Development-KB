@@ -10,11 +10,14 @@ Proof of concept validated on 2026-05-04. Switchres can generate and apply nativ
 
 PoC required two iterations: v1 failed because FBNeo's `-a` flag conflicts with Wine's display mode switching. v2 succeeded by pre-patching FBNeo config for borderless windowed fullscreen instead.
 
+HD safety: initial idea used `videomodes.conf` alone; superseded by defense-in-depth gating (runtime mode + dual-boot + opt-in). Documented in `design/README.md` and `research/01-hd-crt-gating.md`.
+
 ## Root Causes
 
 1. Fightcade bypasses Batocera's emulator launch pipeline entirely (no configgen, no batocera-resolution)
 2. FBNeo's `-a` flag uses Wine ChangeDisplaySettings which fails for non-standard resolutions
 3. FBNeo config stores HD display settings (3440x1440) that need patching for CRT mode
+4. **Open:** Userdata-only mode detection does not always match runtime display state; Fightcade wrapper must gate Switchres with multiple signals (see design doc)
 
 ## Changes Applied
 

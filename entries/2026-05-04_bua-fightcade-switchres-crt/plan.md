@@ -72,8 +72,18 @@ repeats the cycle.
 
 | Repo | File | Change |
 |------|------|--------|
-| batocera-unofficial-addons | fightcade/fightcade.sh | xdg-open shim modification (PoC testing) |
-| (new) | test-switchres-fightcade.sh | PoC script (local to Batocera) |
+| batocera-unofficial-addons | `fightcade/fightcade.sh` | Generates `xdg-open` → `switchres_fightcade_wrap.sh`; ships `switchres_fightcade_wrap.template.sh`; copies `extra/fightcade_display_recover.sh` when present |
+| batocera-unofficial-addons | `fightcade/switchres_fightcade_wrap.template.sh` | PoC wrapper: Switchres **`-k`**, **`PRE_MODE`/`PRE_RES`**, restore, timing (**`sleep 4`** after **`-k`**), `fightcade_pick_display` |
+| batocera-unofficial-addons | `fightcade/extra/fightcade_display_recover.sh` | SSH emergency recover script (documented in KB `design/`) |
+| (device) | `/userdata/system/add-ons/fightcade/extra/switchres_fightcade_wrap.sh` | Generated from template (**sed** `__FIGHTCADE_ADDON__`); rsync during PoC — reinstall Fightcade overwrites; regen from template |
+
+## Known issues (PoC, 2026-05-04)
+
+| Issue | Debug note |
+|-------|------------|
+| Black on TEST GAME if post-switchres sleep too short | Mitigated with **`sleep 4`** after **`switchres -k`** (was **2s** → regression). See **`debug/first-pass-black-screen-issue/`** notes. |
+| Black on TEST GAME after **quit Fightcade → ES → Fightcade #2 → TEST GAME** (Switchres on) | **`debug/second-pass-black-screen-issue/13`**, **`17`**: stale **`SR-*`** modes → **`duplicate add_mode`**, wedged RandR. **`fightcade-switchres.disable`** proves FBNeo path OK (**`15`**). **Mitigation:** **`fightcade_drop_stale_switchres_modes`** before **`switchres`** + **`fightcade_reassert_switchres_output`** after (**await HW retest**). |
+| Bypass file | **`fightcade-switchres.disable`** skips Switchres (emergency). Renaming to **`fightcade-switchres.enable`** turns Switchres back on without deleting the stub. |
 
 ## Deployment Path
 

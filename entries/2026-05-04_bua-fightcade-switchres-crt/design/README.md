@@ -20,15 +20,16 @@ fc2-electron (Fightcade UI)
 fc2-electron (Fightcade UI)
   ├─ User in room → TEST GAME or ONLINE MATCH
   └─> xdg-open fcade://play/fbneo/sfiii3nr1
-       └─> xdg-open shim (MODIFIED)
-            ├─ 1. Parse URL → emulator=fbneo, rom=sfiii3nr1
-            ├─ 2. /usr/bin/mame/mame -listxml sfiii3nr1 → 384x224@59.60
-            ├─ 3. Patch FBNeo config for borderless fullscreen
-            ├─ 4. switchres W H R -s -k  (switch CRT, keep on exit)
-            ├─ 5. fcade.sh "$URL"  (returns immediately — fcade backgrounds)
-            ├─ 6. Poll: while pgrep wine/emulator; sleep 2; done
-            ├─ 7. Restore FBNeo config
-            └─ 8. Restore resolution (xrandr back to ES mode)
+       └─> xdg-open shim (PoC: `switchres_fightcade_wrap.sh`)
+            ├─ 1. Parse URL → emulator + rom; gate CRT (`fightcade_should_use_switchres`)
+            ├─ 2. Snapshot PRE_MODE / PRE_RES (`batocera-resolution`)
+            ├─ 3. `mame -listxml` → W×H×R; patch Wine ini when applicable
+            ├─ 4. `switchres W H R -s -k`
+            ├─ 5. `sleep 4` (launch reliability after -k on CRT PoC hardware)
+            ├─ 6. `fcade.sh "$URL"` (returns immediately — fcade backgrounds)
+            ├─ 7. Wait until emu process appears, then until gone (`pgrep`); settle ~0.45s
+            ├─ 8. Restore Wine ini from backup
+            └─ 9. Restore display to PRE_MODE / PRE_RES (`setMode`, `xrandr`, `minTomax` fallback)
                    └─ User returns to Fightcade room
                       (can launch another game → repeats from step 1)
 ```
@@ -116,38 +117,44 @@ interrupted switches, or configs that still mention CRT while the session is HD-
 **Final rule:** Run Switchres path only when **(Switchres present)** AND **(opt-in OR
 (runtime says CRT-shaped AND not on HD boot path))**. Otherwise `fcade.sh "$URL"` only.
 
+### Implemented PoC wrapper (`fightcade/switchres_fightcade_wrap.template.sh`)
+
+Shipped beside `fightcade.sh`; installer **sed** substitutes `__FIGHTCADE_ADDON__`. Generated on-device as  
+`/userdata/system/add-ons/fightcade/extra/switchres_fightcade_wrap.sh`. Ports **`Fightcade.sh`** sets **`HOME`** to the addon tree; **`xdg-open`** dispatches **`fcade://`** to this wrapper (not **`fcade.sh`** directly).
+
+**DISPLAY:** `fightcade_pick_display` chooses **`:0.0`** if `/tmp/.X11-unix/X0` exists, else **`:1.0`** if **`X1`**, else default **`:0.0`**. Used at wrapper start, before **`PRE_MODE`** capture, and inside **`restore_display_mode`** (do not hardcode **`:0`** after an SSH **`S31emulationstation restart`** moved X to **`:1`**).
+
+**Gating (`fightcade_should_use_switchres`):** **`/usr/bin/switchres`** executable; **`batocera-resolution getDisplayMode`** is **`xorg`**; **`currentResolution`** width **< 720** (CRT-shaped menu); optional **`/userdata/system/configs/fightcade-switchres.force`**. If any fail → **`exec fcade.sh`** (no Switchres).
+
+**Per launch:**
+
+1. Parse **`fcade://play/<emu>/<rom>`**; **`resolve_rom_dims`** via MAME **`-listxml`** (or fixed SNES/Flycast fallback).
+2. **`PRE_MODE`** / **`PRE_RES`** from **`batocera-resolution`** (snapshot of ES/menu timing).
+3. Patch FBNeo / GGPO FBA / Snes9x Wine **`.ini`** when present (borderless fullscreen path).
+4. **`switchres W H R -s -k`**. **`switchres`** stderr currently discarded (**`|| true`**); failures can leave weak state (future: log).
+5. **`sleep 4`** after **`-k`** before **`fcade.sh`**. Shorter sleeps (**2s**) caused **black screen on TEST GAME** on PoC hardware; **4s** is the current reliability tradeoff.
+6. **`fcade.sh "$URL"`** (returns immediately; Wine emu runs in background).
+7. **`wait_for_emulators`:** wait until **`pgrep`** sees **`fcadefbneo.exe|ggpofba-ng.exe|fcadesnes9x.exe|flycast`** (avoid restoring before emu exists → black); poll ~**0.25s** while waiting for start; ~**0.4s** while emu runs; **~0.45s** settle after last emu exit.
+8. Restore **`.ini`** from **`*.bak.switchres`**.
+9. **`restore_display_mode`:** **`xrandr`** from **`PRE_MODE`** first; **`poll_snapshot_match`** (50ms steps) until **`display_matches_snapshot`**; then **`batocera-resolution setMode`** loops + **`xrandr`** on odd iterations; last **`minTomaxResolution`** if wedged. **`display_matches_snapshot`** uses **`batocera-resolution`** and falls back to **`xrandr`** **`current WxH`** when Switchres leaves no **`*`** in **`listModes`**.
+
+**Emergency SSH recover:** **`extra/fightcade_display_recover.sh`** (**`minTomaxResolution`** then **`641x480i`** fallback). Comment warns **not** to **`S31emulationstation restart`** from SSH (split X display).
+
 ### Process Monitoring Strategy
 
-Because `fcade.sh` backgrounds `fcade` (which then spawns Wine + emulator), the
-wrapper cannot simply wait for `fcade.sh` to exit. Strategy:
+Because **`fcade.sh`** backgrounds **`fcade`**, the wrapper cannot wait on **`fcade.sh`** alone. Implemented behavior matches **`switchres_fightcade_wrap.template.sh`** (see **Implemented PoC wrapper** above). Summary:
 
 ```bash
-switchres_fightcade_wrap() {
-    local URL="$1"
-
-    if ! fightcade_should_use_switchres; then
-        $ADDONS_DIR/fightcade/Fightcade/emulator/fcade.sh "$URL"
-        return
-    fi
-
-    # ... parse URL, lookup resolution, patch config ...
-
-    switchres $W $H $R -s -k   # switch and keep
-
-    $ADDONS_DIR/fightcade/Fightcade/emulator/fcade.sh "$URL"
-
-    sleep 2
-    while pgrep -f "fcadefbneo.exe|ggpofba-ng.exe|fcadesnes9x.exe|flycast.elf" >/dev/null 2>&1; do
-        sleep 2
-    done
-
-    restore_fbneo_config
-    restore_display
-}
+# Pseudocode — see repo template for exact sleeps and fallbacks
+switchres "$W" "$H" "$R" -s -k
+sleep 4   # launch reliability after -k
+"$FCADE_SH" "$URL"
+wait_for_emulators   # pgrep emu binaries; wait for appearance then exit; short settle
+restore_ini ...
+restore_display_mode "$PRE_MODE" "$PRE_RES"
 ```
 
-Implement `fightcade_should_use_switchres` using the gates in **CRT activation gates**
-above (not `videomodes.conf` alone).
+Old sketch had **`sleep 2`** + **`pgrep`** every **2s** only; that **skipped** “emu not started yet” and restored **during** load (black). Current script **waits for emu to appear** first, then **until gone**, then restores.
 
 **Handles both TEST GAME and ONLINE MATCH identically:**
 - TEST GAME: user manually exits via Game > Exit, pgrep sees process gone

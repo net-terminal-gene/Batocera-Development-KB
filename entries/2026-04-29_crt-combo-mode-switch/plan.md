@@ -184,3 +184,32 @@ Do not rewrite the plan body above; this appendix points at shipped behavior and
 | Deck watcher, logging, why not only triggerhappy | **`design/README.md`** |
 
 **First-time user requirement:** blind CRT→HD restore requires a prior **HD mode backup** from the UI switcher (`hd_mode/mode_metadata.txt` with **`MODE=hd`**). Otherwise the combo exits after guards with a log line (no bricking restore).
+
+---
+
+## Appendix (2026-05-05): Watcher toggle in Mode Switcher UI
+
+**Request:** Add an **enable/disable toggle** for the `crt_mode_switch_watcher` service inside the HD/CRT Mode Switcher dialog, so users without handhelds do not have it running in the background. Gated on HD backup existence (same predicate as the combo itself).
+
+**Plan file:** `.cursor/plans/watcher_toggle_in_switcher_87cd81b7.plan.md`
+
+### Summary
+
+| What | Detail |
+|------|--------|
+| Entry points | Main menu row + config summary `EDIT_WATCHER` row |
+| Dedicated page | `show_watcher_page` in `04_user_interface.sh` |
+| Gate | `_hd_backup_exists` (same `mode_metadata.txt MODE=hd` check) |
+| When UNAVAILABLE | Page is info-only; no ENABLE/DISABLE row shown |
+| When available | ENABLE or DISABLE row; calls `batocera-services enable/disable + start/stop` |
+| Installer change | Remove auto-enable; service deployed but **OFF by default** |
+| No reboot | `batocera-services start/stop` acts immediately |
+
+### Files to touch
+
+| File | Change |
+|------|--------|
+| `mode_switcher_modules/04_user_interface.sh` | Add main-menu row, `show_watcher_page`, helpers |
+| `mode_switcher_modules/02_hd_output_selection.sh` | Add `EDIT_WATCHER` to config summary |
+| `mode_switcher.sh` | Handle `toggle_watcher` in main loop |
+| `Batocera_ALLINONE/Batocera-CRT-Script-v43.sh` | Remove auto-enable block |

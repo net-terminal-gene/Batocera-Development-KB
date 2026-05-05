@@ -186,3 +186,78 @@ device.write(evdev.ecodes.EV_FF, effect_id, 1)
 ```
 
 On Batocera, prefer the same **`ff_rumble_effect`** field usage as the shipped combo haptic block.
+
+---
+
+## Watcher toggle UI (planned, 2026-05-05)
+
+Add a dedicated **"Blind Switch Watcher"** page to the mode switcher dialog, reachable from the **main menu** and the **config summary** (`EDIT_WATCHER`).
+
+### Gate
+
+Same predicate as `crt-mode-switch-combo` guard #3:
+
+```bash
+_hd_backup_exists() {
+  local meta="/userdata/Batocera-CRT-Script-Backup/mode_backups/hd_mode/mode_metadata.txt"
+  [ -f "$meta" ] && grep -q '^MODE=hd' "$meta" 2>/dev/null
+}
+```
+
+### Service control
+
+```bash
+_watcher_enabled() {
+  local svcs
+  svcs="$(batocera-settings-get system.services 2>/dev/null)"
+  echo " $svcs " | grep -q ' crt_mode_switch_watcher '
+}
+```
+
+- **Enable:** `batocera-services enable crt_mode_switch_watcher && batocera-services start crt_mode_switch_watcher`
+- **Disable:** `batocera-services stop crt_mode_switch_watcher && batocera-services disable crt_mode_switch_watcher`
+
+No reboot; acts immediately.
+
+### Page states
+
+| State | Condition | Action rows |
+|-------|-----------|-------------|
+| UNAVAILABLE | `_hd_backup_exists` false | Only BACK (info-only) |
+| OFF | HD backup exists, service not in `system.services` | ENABLE + BACK |
+| ON | HD backup exists, service in `system.services` | DISABLE + BACK |
+
+### Dialog prompt text (shipped in `show_watcher_page`)
+
+```
+WHAT THIS DOES
+Recommended for handheld devices, this enables a background
+service that watches for a held button combo. When detected,
+it switches from CRT Mode to HD Mode without needing a
+display. Useful when you power on away from a CRT and get a
+black screen.
+
+BUTTON COMBO
+Hold SELECT + START + L1 + L2 for 5 seconds.
+A brief controller rumble confirms the switch right before
+the system reboots into HD Mode.
+
+PREREQUISITES
+You must complete one full HD/CRT round trip using the mode
+switcher first (CRT -> HD -> CRT). This saves the HD settings
+that the blind switch restores.
+
+Status: [ON / OFF / UNAVAILABLE (complete one HD/CRT round trip to unlock)]
+```
+
+### Config summary row
+
+```
+EDIT_WATCHER   Edit Blind Switch Watcher
+```
+
+No `[ON/OFF]` badge on this row; status lives on the dedicated page.
+
+### Installer default
+
+ALLINONE v43 deploys the service file but does **not** auto-enable. User opts in via this toggle (or `batocera-services enable crt_mode_switch_watcher` manually).

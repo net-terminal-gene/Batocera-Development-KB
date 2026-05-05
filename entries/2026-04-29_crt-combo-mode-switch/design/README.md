@@ -250,13 +250,20 @@ that the blind switch restores.
 Status: [ON / OFF / UNAVAILABLE (complete one HD/CRT round trip to unlock)]
 ```
 
-### Config summary row
+### Config summary page
+
+The "Mode Switch Configuration" summary page shows status in the **info block at the top** (alongside HD Output, CRT Output, CRT Boot):
+
+```
+Blind Switch Watcher: ON
+```
+or `OFF` or `UNAVAILABLE`.
+
+The menu row below is just the edit action:
 
 ```
 EDIT_WATCHER   Edit Blind Switch Watcher
 ```
-
-No `[ON/OFF]` badge on this row; status lives on the dedicated page.
 
 ### Installer default
 

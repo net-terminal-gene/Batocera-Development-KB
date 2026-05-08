@@ -6,7 +6,7 @@ Opus 4.6 High + ssh-batocera for on-device testing
 
 ## Problem
 
-`create-steam-launchers.sh` (the Steam addon's launcher generator for EmulationStation) has two critical issues with non-Steam game shortcuts:
+`create-steam-launchers2.sh` (the Steam addon's launcher generator for EmulationStation) has two critical issues with non-Steam game shortcuts:
 
 1. **No sound, broken controller input** — Launchers invoke `proton run` directly, bypassing the Steam Linux Runtime container that provides audio routing and controller environment.
 2. **Artwork silently fails for many games** — `sgdb_get_image()` hardcodes `dimensions=460x215`. If no image exists at that exact size, no artwork appears.
@@ -18,17 +18,22 @@ Opus 4.6 High + ssh-batocera for on-device testing
 
 ## Solution
 
-### Fix 1: SteamLinuxRuntime launch chain (VALIDATED on device)
+### Fix 1: SteamLinuxRuntime launch chain (VALIDATED on 5 games)
 
-Replace the non-Steam launcher template (lines ~403-435) to use:
+Replace the non-Steam launcher template to use:
 
 ```bash
 SLR_ENTRY="${STEAM_APPS}/common/SteamLinuxRuntime_4/_v2-entry-point"
-PROTON_PATH="${STEAM_APPS}/common/${proton_name}/proton"
+PROTON_PATH="${STEAM_APPS}/common/Proton - Experimental/proton"
 
+export STEAM_COMPAT_DATA_PATH="$COMPAT_DATA"
+export STEAM_COMPAT_CLIENT_INSTALL_PATH="${STEAM_DIR}/.local/share/Steam"
+export STEAM_COMPAT_APP_ID="$APPID"
+export SteamAppId="$APPID"
+export SteamGameId="$APPID"
+export PULSE_SERVER="unix:/var/run/pulse/native"
 export PROTON_NO_STEAM_OVERLAY=1
 export WINEDLLOVERRIDES="lsteamclient=d;steam.exe=d"
-export PULSE_SERVER="unix:/var/run/pulse/native"
 
 "$SLR_ENTRY" --verb=run -- "$PROTON_PATH" run "$EXE"
 ```
@@ -36,8 +41,12 @@ export PULSE_SERVER="unix:/var/run/pulse/native"
 - `PROTON_NO_STEAM_OVERLAY=1` — Prevents overlay from trying to connect to non-existent Steam daemon
 - `WINEDLLOVERRIDES="lsteamclient=d;steam.exe=d"` — Suppresses assertion in Wine's steamclient stub
 - `PULSE_SERVER` — Explicit PipeWire/PulseAudio socket path
+- `SteamAppId` / `SteamGameId` — Identity vars some games check
+- Proton Experimental hardcoded (removed `detect_proton()` entirely)
+- Removed `SDL_GAMECONTROLLERCONFIG` hack (SLR provides proper SDL environment)
+- Cleanup: `pkill wineserver` instead of `pkill steam/steamwebhelper` (avoids killing actual Steam)
 
-### Fix 2: SteamGridDB dimension fallback
+### Fix 2: SteamGridDB dimension fallback (VALIDATED)
 
 Replace single API call in `sgdb_get_image()` with cascading attempts:
 1. `460x215` (current, matches Steam library header ratio)
@@ -48,18 +57,19 @@ Replace single API call in `sgdb_get_image()` with cascading attempts:
 
 | Repo | File | Change |
 |------|------|--------|
-| batocera-unofficial-addons | `steam/extra/create-steam-launchers.sh` | Launcher template: SLR chain + env vars |
-| batocera-unofficial-addons | `steam/extra/create-steam-launchers.sh` | `sgdb_get_image()`: dimension fallback |
-| batocera-unofficial-addons | `steam/extra/create-steam-launchers2.sh` | Same fixes if maintained |
+| batocera-unofficial-addons | `steam/extra/create-steam-launchers2.sh` | Launcher template: SLR chain + Proton Experimental + env vars |
+| batocera-unofficial-addons | `steam/extra/create-steam-launchers2.sh` | `sgdb_get_image()`: dimension fallback |
+| batocera-unofficial-addons | `steam/extra/create-steam-launchers2.sh` | Removed `detect_proton()` function |
+| batocera-unofficial-addons | `steam/extra/create-steam-launchers2.sh` | Removed `SDL_GAMECONTROLLERCONFIG` (SLR handles this) |
 
 ## Validation
 
 - [x] Game launches with sound via SLR+Proton chain (eXceed 2nd - Vampire REX)
 - [x] Controller axes correct (8BitDo Lite 2, no inversion)
 - [x] No steamclient assertion dialog
-- [ ] Game with 460x215 artwork still downloads correctly (no regression)
-- [ ] Game with only 512x512 artwork gets artwork via fallback
-- [ ] Game with no artwork at all doesn't error/crash the loop
+- [x] Multiple games confirmed working (5 total: eXceed 2nd, Maldita Castilla, SenXin Aleste, eXceed 3rd, eXceed Gun Bullet Children)
+- [x] Artwork fallback validated (Gun Bullet Children had no 460x215, got artwork via cascade)
+- [x] Clean exit back to ES after game close
 - [ ] Official Steam games (e.g. Blaze of Storm) still launch correctly (no regression from SLR change)
-- [ ] Clean exit back to ES after game close
-- [ ] Documentation: non-steam-games folder convention (no nested folders between game-named dir and exe)
+- [ ] Game with no artwork at all doesn't error/crash the loop
+- [ ] PR opened and passing CI

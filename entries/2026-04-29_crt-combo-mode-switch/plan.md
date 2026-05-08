@@ -197,7 +197,7 @@ Do not rewrite the plan body above; this appendix points at shipped behavior and
 
 | What | Detail |
 |------|--------|
-| Entry points | Main menu row + config summary `EDIT_WATCHER` row |
+| Entry points | Mode Switch Configuration summary only (`EDIT_WATCHER` row) |
 | Dedicated page | `show_watcher_page` in `04_user_interface.sh` |
 | Gate | `_hd_backup_exists` (same `mode_metadata.txt MODE=hd` check) |
 | When UNAVAILABLE | Page is info-only; no ENABLE/DISABLE row shown |
@@ -209,7 +209,6 @@ Do not rewrite the plan body above; this appendix points at shipped behavior and
 
 | File | Change |
 |------|--------|
-| `mode_switcher_modules/04_user_interface.sh` | Add main-menu row, `show_watcher_page`, helpers |
-| `mode_switcher_modules/02_hd_output_selection.sh` | Add `EDIT_WATCHER` to config summary |
-| `mode_switcher.sh` | Handle `toggle_watcher` in main loop |
+| `mode_switcher_modules/04_user_interface.sh` | Add `show_watcher_page`, helpers (`_hd_backup_exists`, `_watcher_enabled`, `_modeswitcher_watcher_status_label`); main menu stays single-item |
+| `mode_switcher_modules/02_hd_output_selection.sh` | Add `EDIT_WATCHER` to config summary; `edit_watcher` → `show_watcher_page` |
 | `Batocera_ALLINONE/Batocera-CRT-Script-v43.sh` | Remove auto-enable block |

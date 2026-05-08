@@ -191,7 +191,7 @@ On Batocera, prefer the same **`ff_rumble_effect`** field usage as the shipped c
 
 ## Watcher toggle UI (planned, 2026-05-05)
 
-Add a dedicated **"Blind Switch Watcher"** page to the mode switcher dialog, reachable from the **main menu** and the **config summary** (`EDIT_WATCHER`).
+Add a dedicated **"Blind Switch Watcher"** page to the mode switcher dialog, reachable only from the **Mode Switch Configuration** summary (`EDIT_WATCHER`), not from the top-level HD/CRT Mode Switcher menu.
 
 ### Gate
 
@@ -267,4 +267,4 @@ EDIT_WATCHER   Edit Blind Switch Watcher
 
 ### Installer default
 
-ALLINONE v43 deploys the service file but does **not** auto-enable. User opts in via this toggle (or `batocera-services enable crt_mode_switch_watcher` manually).
+ALLINONE v43 deploys the service file but does **not** auto-enable. User opts in from **Mode Switch Configuration** → **Edit Blind Switch Watcher** (or `batocera-services enable crt_mode_switch_watcher` manually).

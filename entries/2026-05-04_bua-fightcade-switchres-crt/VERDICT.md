@@ -1,6 +1,6 @@
 # VERDICT — Fightcade Switchres CRT Integration
 
-## Status: PR #156 OPEN Draft — full test matrix pass, ready for team review
+## Status: PR #156 MERGED 2026-05-11 (`f40b58ad`) — full test matrix pass before merge
 
 ## Summary
 

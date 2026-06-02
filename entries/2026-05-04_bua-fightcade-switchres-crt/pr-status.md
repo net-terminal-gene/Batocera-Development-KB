@@ -1,11 +1,12 @@
 # PR Status — Fightcade Switchres CRT Integration
 
-## PR [#156](https://github.com/batocera-unofficial-addons/batocera-unofficial-addons/pull/156)
+## PR [#156](https://github.com/batocera-unofficial-addons/batocera-unofficial-addons/pull/156) — MERGED
 
 **Repo:** `batocera-unofficial-addons/batocera-unofficial-addons`  
 **Branch:** `net-terminal-gene:fightcade-switchres-crt`  
 **Base:** `main`  
-**Status:** OPEN Draft  
+**Status:** **MERGED** 2026-05-11  
+**Merge commit:** `f40b58ad6104cc558eed49edf8640efd82b32334`  
 **Created:** 2026-05-05
 
 ### Files

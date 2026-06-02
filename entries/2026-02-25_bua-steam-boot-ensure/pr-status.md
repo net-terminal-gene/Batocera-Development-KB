@@ -1,6 +1,6 @@
 # PR Status — BUA Steam Boot-Time Ensure
 
-## PR #145
+## PR #145 — MERGED
 
 | Field | Value |
 |-------|-------|
@@ -8,14 +8,14 @@
 | PR | [#145](https://github.com/batocera-unofficial-addons/batocera-unofficial-addons/pull/145) |
 | Branch | `steam-boot-ensure-batocera-conf` → `main` |
 | Title | steam: add boot-time script to ensure batocera.conf entries |
-| Status | **OPEN** |
+| Status | **MERGED** 2026-02-27 |
+| Merge commit | `39e84f8d34565d85491e4e1562d6e932a2b390ad` |
 | Created | 2026-02-25 |
 
 ## Review Comments
 
-(No review comments yet)
+(No review comments)
 
 ## Outstanding Items
 
-- [ ] Await review
-- [ ] Merge when approved
+- [x] Merge when approved — merged 2026-02-27

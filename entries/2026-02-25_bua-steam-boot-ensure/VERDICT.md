@@ -1,6 +1,6 @@
 # VERDICT — BUA Steam Boot-Time Ensure
 
-## Status: PR Open
+## Status: PR #145 MERGED 2026-02-27 (`39e84f8d`)
 
 ## Summary
 

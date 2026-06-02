@@ -4,7 +4,7 @@
 
 ## Summary
 
-Session created 2026-04-09. Research phase completed quickly: identified theme architecture (external GitHub repos, ES normalized coordinates, `tinyScreen` boolean, subset system). Implementation started 2026-04-11. Distribution approach pivoted from standalone fork to patching the stock Carbon theme directly during CRT Script installation. `crt240p.xml` layout iterated and tested at 640x480 on the Philips CRT via the `es-theme-carbon-crt` dev repo. Installer logic (v42 + v43) written and committed to `es-carbon-240-install` branch. PR #409 opened as draft. Pending validation at native 320x240.
+Session created 2026-04-09. Research phase completed quickly: identified theme architecture (external GitHub repos, ES normalized coordinates, `tinyScreen` boolean, subset system). Implementation started 2026-04-11. Distribution approach pivoted from standalone fork to patching the stock Carbon theme directly during CRT Script installation. `crt240p.xml` layout iterated and tested at 640x480 on the Philips CRT via the `es-theme-carbon-crt` dev repo. Installer logic (v42 + v43) written on branch `es-carbon-240-install`. PR #409 opened as draft, **closed 2026-05-16 without merge**. Pending validation at native 320x240; needs re-open or new PR.
 
 ## Plan vs reality
 

@@ -157,9 +157,7 @@ Lock: `chmod 444`.
 
 Path: `/userdata/saves/psp/<Title>.state.auto`
 
-For this cabinet, TATE-tier states were seeded from Myzar `10.23.6.214` (Batocera **v41**). They load correctly on v43 (`10.23.6.210`) for all three TATE titles.
-
-Mac-side backup during deploy: `/tmp/myzar-psp-states/` (also copy into `~/Batocera-Development-KB/snapshots/myzar-psp-states/` for redistribution).
+For this cabinet, TATE-tier states were seeded from Myzar `10.23.6.214` (Batocera **v41**). They load correctly on v43 (`10.23.6.210`) for all three TATE titles. Live copies: `/userdata/saves/psp/` on `10.23.6.210`.
 
 ### 4. Horizontal tier — viewport-only `.cfg` (no remap, no bundled state)
 

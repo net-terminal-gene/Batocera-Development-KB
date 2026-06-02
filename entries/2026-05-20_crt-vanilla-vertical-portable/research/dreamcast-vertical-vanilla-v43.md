@@ -87,13 +87,15 @@ For each title you want to skip the Dreamcast / game intros and start mid-game i
 
 `chown root:root` everything afterwards.
 
-For this cabinet the states were sourced from a Myzar machine. The canonical Mac-side backup is at `~/Batocera-Development-KB/snapshots/myzar-dreamcast-states/` (40 files, 18 titles + 2 Battle Crust variants). Re-deploy procedure:
+For this cabinet the states were sourced from Myzar `10.23.6.211` and deployed to `10.23.6.210`. Re-deploy from the live cabinet or Myzar source:
 
 ```bash
 rsync -av --include='*.state.auto' --include='*.state.auto.png' --exclude='*' \
-  ~/Batocera-Development-KB/snapshots/myzar-dreamcast-states/ \
-  root@<cabinet>:/userdata/saves/dreamcast/
-ssh root@<cabinet> 'chown root:root /userdata/saves/dreamcast/*.state.auto*'
+  root@10.23.6.210:/userdata/saves/dreamcast/ \
+  root@<target>:/userdata/saves/dreamcast/
+# Or from Myzar source if cabinet copy is lost:
+# root@10.23.6.211:/userdata/saves/dreamcast/
+ssh root@<target> 'chown root:root /userdata/saves/dreamcast/*.state.auto*'
 ```
 
 For a redistributable autoconfig install, ship the equivalent bundle as an asset directory inside `Batocera-CRT-Script` and rsync it from there.
@@ -205,7 +207,7 @@ For each seeded title:
 - **VMU data not deployed by default.** First boot of a title may briefly show the Dreamcast "set time / date" prompt before the state loads. The state captures Dreamcast RAM, so the prompt is bypassed within a frame or two; if a particular title insists on a VMU save, pull `<Game>.A1.bin` etc. from the curated bundle separately.
 - **Per-content overrides need a writable cfg.** Generate the per-game `.cfg` files with `chmod 644` even though root can read `600`. It removes a misleading variable during diagnosis if anything else later goes wrong.
 - **In-game-TATE detection is empirical.** The list above was found by launching each suspect title and checking the orientation. Any new title with an in-game TATE menu may or may not have TATE on in its curated state. Test before adding to the `=0` list.
-- **Curated bundle is the canonical source.** `~/Batocera-Development-KB/snapshots/myzar-dreamcast-states/` on the maintainer Mac. Treat it as the master copy; re-rsync from it to restore any drift. For redistribution, package an equivalent bundle into the autoconfig asset directory.
+- **Curated bundle lives on the deployed cabinet.** `/userdata/saves/dreamcast/` on `10.23.6.210`. Re-seed from Myzar `10.23.6.211` or re-capture per title. For redistribution, package an equivalent bundle into the autoconfig asset directory.
 
 ---
 

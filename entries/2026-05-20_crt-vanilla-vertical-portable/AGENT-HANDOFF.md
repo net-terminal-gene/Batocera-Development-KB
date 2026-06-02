@@ -150,19 +150,19 @@ Hard locks: `ppsspp` core; chmod 444 on TATE cfg+rmp; never save remaps from ins
 
 ## Source bundle locations
 
-All curated state captures from the Myzar source cabinet are on the maintainer Mac:
+Discovery work is complete. Curated runtime assets live on the **deployed cabinet** (`10.23.6.210`). To re-seed or rebuild, rsync from the cabinet (or re-capture on hardware per each system's recipe doc). The former Mac-side `snapshots/` folder was removed after settings were documented.
 
-| Path | Contents | Bytes |
-|------|----------|-------|
-| `~/Batocera-Development-KB/snapshots/myzar-saturn-states/` | 38 Saturn titles: `.state.auto`, `.state.auto.png`, plus `.bcr/.bkr/.smpc/.state1` for completeness (~202 files) | ~81 MB |
-| `~/Batocera-Development-KB/snapshots/myzar-dreamcast-states/` | 18 Dreamcast titles + 2 Battle Crust variants: `.state.auto` + `.state.auto.png` (40 files) | ~96 MB |
-| Cabinet `10.23.6.210` at `/userdata/saves/psx/*.1.mcr` | 2 PSX memory cards captured after operator enabled in-game TATE on DoDonPachi + Donpachi (~128KB each, core-independent) | ~256 KB |
-| `~/Batocera-Development-KB/snapshots/myzar-psp-states/` (or `/tmp/myzar-psp-states/` during deploy) | 3 TATE titles only: Star Soldier, Beta Bloc, Neo Geo Heroes Ultimate Shooting (`.state.auto` + `.png`). **Exclude Space Invaders Evolution** (Myzar v41 state hangs v43 PPSSPP on autoload). | ~15 MB |
-| Cabinet `10.23.6.210` at `/userdata/saves/psp/_backup-myzar-incompatible/` | Quarantined Space Invaders Myzar state (reference only) | ~2.4 MB |
-| Cabinet `10.23.6.210` at `/userdata/saves/ps2/pcsx2/sstates/*.01.p2s` + `.png` | 12 PS2 bootstrap save states captured after operator F1'd at the desired launch spot in TATE mode (`chmod 444` locked). Each `.p2s` ~10–15 MB; tied to specific BIOS version (European SCPH30004R on this cabinet) which embeds in save state header. | ~150 MB |
-| Cabinet `10.23.6.210` at `/userdata/saves/ps2/pcsx2/Mcd001.ps2` | Single 8 MB PS2 memory card holding in-game TATE settings for all 12 wired titles (persists across launches independently of save states; written by PCSX2 when game writes to its save data) | ~8 MB |
+| Path | Contents |
+|------|----------|
+| Cabinet `10.23.6.210` at `/userdata/saves/saturn/*.state.auto` | 38 Saturn titles (state-injection bundle) |
+| Cabinet `10.23.6.210` at `/userdata/saves/dreamcast/*.state.auto` | 18 Dreamcast titles + 2 Battle Crust variants |
+| Cabinet `10.23.6.210` at `/userdata/saves/psx/*.1.mcr` | 2 PSX memory cards (DoDonPachi, Donpachi; core-independent) |
+| Cabinet `10.23.6.210` at `/userdata/saves/psp/*.state.auto` | 3 TATE-tier PSP titles (exclude Space Invaders Evolution) |
+| Cabinet `10.23.6.210` at `/userdata/saves/ps2/pcsx2/sstates/*.01.p2s` | 12 PS2 bootstrap saves (`chmod 444` locked; BIOS-tied) |
+| Cabinet `10.23.6.210` at `/userdata/saves/ps2/pcsx2/Mcd001.ps2` | PS2 memory card with in-game TATE for wired titles |
+| Myzar source `10.23.6.211` | Historical source for Saturn/Dreamcast state pulls only if cabinet copy is lost |
 
-For redistribution via Batocera-CRT-Script's autoconfig generator, these bundles need to be packaged as asset directories inside the CRT Script repo. PSX memory cards specifically are core-independent (work with `pcsx_rearmed`, `mednafen_psx`, `swanstation`, `duckstation`). PS2 bootstrap captures are BIOS-version-tied — bundle metadata must specify the capture BIOS or downstream load will fail with "BIOS version mismatch".
+For redistribution via Batocera-CRT-Script's autoconfig generator, package asset directories from the cabinet (or CRT Script repo assets once shipped). PS2 bootstraps are BIOS-version-tied; bundle metadata must specify capture BIOS.
 
 ---
 

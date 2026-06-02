@@ -79,19 +79,19 @@ The Saturn TATE / Side option for these titles is **not** stored as a RetroArch 
 
 ## Deployment (2026-05-22)
 
-1. Pulled all `*.state.auto` and `*.state.auto.png` from Myzar `10.23.6.211:/userdata/saves/saturn/` to Mac backup `~/Batocera-Development-KB/snapshots/myzar-saturn-states/` (also captured `.bcr/.bkr/.smpc/.state1` for completeness; ~202 files, ~81 MB).
-2. Pushed only the **state.auto pairs** from Mac to v43 `10.23.6.210:/userdata/saves/saturn/` with rsync include/exclude filter:
+1. Pulled all `*.state.auto` and `*.state.auto.png` from Myzar `10.23.6.211:/userdata/saves/saturn/` (also captured `.bcr/.bkr/.smpc/.state1` for completeness).
+2. Pushed only the **state.auto pairs** to v43 `10.23.6.210:/userdata/saves/saturn/` with rsync include/exclude filter:
 
    ```bash
    rsync -av --include='*.state.auto' --include='*.state.auto.png' --exclude='*' \
-     ~/Batocera-Development-KB/snapshots/myzar-saturn-states/ \
+     root@10.23.6.211:/userdata/saves/saturn/ \
      root@10.23.6.210:/userdata/saves/saturn/
    ```
 
 3. `chown root:root` all `*.state.auto*` on v43.
 4. Set the three Saturn keys (`saturn.autosave=0`, `saturn.retroarch.savestate_auto_load=true`, `saturn.retroarch.savestate_auto_save=false`) via `batocera-settings-set` (only Saturn; not `global.*`).
 5. Verified Batsugun and Battle Garegga first; behavior confirmed by user. Rolled out to the rest in one rsync.
-6. **Decouple step added 2026-05-22 (PM):** initial deploy used `saturn.autosave=1` which overwrote curated states on first quit. Switched to the three-key decoupled pattern, re-pushed all 38 `.state.auto` pairs from Mac backup, re-`chown`ed. Pristine baseline now persists across play sessions.
+6. **Decouple step added 2026-05-22 (PM):** initial deploy used `saturn.autosave=1` which overwrote curated states on first quit. Switched to the three-key decoupled pattern, re-pushed all 38 `.state.auto` pairs from Myzar source, re-`chown`ed. Pristine baseline now persists across play sessions.
 
 ## Seeded titles (38)
 
@@ -110,8 +110,8 @@ Batsugun, Battle Garegga, Blast Wind (Japan), Crimewave (USA), Detana Twinbee Ya
 ## Risks / gotchas
 
 - **Mid-session progress is not saved on exit.** That is the intended behavior for arcade-style vertical shmups (curated baseline always wins). Players who want to save in the middle of a run should use a manual savestate slot (`F2` to Slot 1, etc.); manual slots are independent of `.state.auto` and not affected by these keys.
-- **Manual Slot 1 not deployed.** Myzar had `<Game>.state1[.png]` for a few titles (DoDonPachi, Guardian Force). Those are kept on the Mac backup only; not pushed to v43. Easy to push later if wanted.
-- **Mac backup is the canonical source.** `~/Batocera-Development-KB/snapshots/myzar-saturn-states/` holds the pre-play Myzar capture. Treat it as the master copy; re-rsync from it to restore any drift.
+- **Manual Slot 1 not deployed.** Myzar had `<Game>.state1[.png]` for a few titles (DoDonPachi, Guardian Force). Not pushed to v43. Easy to push later if wanted.
+- **Canonical copy is on the deployed cabinet.** `/userdata/saves/saturn/` on `10.23.6.210` holds the live bundle. Re-seed from Myzar `10.23.6.211` or re-capture on hardware per "Adding a new Saturn title" below.
 
 ## QA checklist
 

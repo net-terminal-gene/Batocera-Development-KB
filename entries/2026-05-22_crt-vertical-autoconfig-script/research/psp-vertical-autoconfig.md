@@ -159,7 +159,7 @@ fi
 
 Only bundle states captured on the **same Batocera major version + PPSSPP core** as the target, or validate each title individually after deploy.
 
-Recommended Mac-side TATE bundle source: `~/Batocera-Development-KB/snapshots/myzar-psp-states/` (Star Soldier, Beta Bloc, Neo Geo Heroes Ultimate Shooting only).
+Re-seed TATE-tier states from cabinet `10.23.6.210:/userdata/saves/psp/` (Star Soldier, Beta Bloc, Neo Geo Heroes Ultimate Shooting only; exclude Space Invaders Evolution).
 
 ### Step 6 — Cleanup incompatible artifacts
 

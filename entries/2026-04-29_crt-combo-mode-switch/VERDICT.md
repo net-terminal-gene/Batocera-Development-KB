@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress — **PR [#413](https://github.com/ZFEbHVUE/Batocera-CRT-Script/pull/413)** OPEN (`key-combo-mode-switch` → `main`). Merge state: **`pr-status.md`**.
+**MERGED** — **PR [#413](https://github.com/ZFEbHVUE/Batocera-CRT-Script/pull/413)** merged 2026-05-11 (`4faa6e03`). Merge state: **`pr-status.md`**. Optional follow-up: watcher toggle in Mode Switcher UI (planned, not in merge).
 
 ## Summary
 

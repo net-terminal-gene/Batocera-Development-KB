@@ -25,5 +25,6 @@ Auto-detect cannot identify DAC or CRT-vs-HD on DisplayPort; manual user choice 
 | [design/crt-es-settings-proposal.md](design/crt-es-settings-proposal.md) | Recommended ES CRT menu (Mikey → maintainer) |
 | [research/auto-detect-limits.md](research/auto-detect-limits.md) | Why auto/DAC detection fails |
 | [debug/01-workaround-validated.md](debug/01-workaround-validated.md) | Phase 1 hardware validation |
-| [code-changes/](code-changes/) | **Implementation snippets** for maintainer (Phases 2–3) |
+| [code-changes/](code-changes/) | Implementation snippets (reference) |
+| [design/test-plan.md](design/test-plan.md) | Rsync deploy, reset, acceptance tests |
 | [VERDICT.md](VERDICT.md) | Close when Phases 2–3 ship or scope is cut |

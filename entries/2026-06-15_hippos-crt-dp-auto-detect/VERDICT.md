@@ -1,6 +1,8 @@
 # VERDICT — HippOS CRT DP auto-detect
 
-## Status: TBD
+## Status: IN PROGRESS
+
+Implementer: Mikey (`net-terminal-gene` forks). Phase 1 validated; Phases 2–3 coded, hardware acceptance pending.
 
 ## Summary
 

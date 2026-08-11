@@ -68,14 +68,32 @@ Empty scaffolds when Batocera source missing: e.g. `nes_fds`, `sms`←`mastersys
 - Dreamcast still needs Fightcade-valid CHDs + BIOS in Flycast’s real data path (`config/flycast/data`); symlink alone is not enough for bad dumps.
 - Idempotent re-runs: create missing dirs, refresh managed symlinks, do not wipe unrelated user files under `ROMs/`.
 
+### Design addition (2026-08-08): auto-refresh game hook
+
+Not in the original plan. Verified in `batocera.linux` sources that `emulatorlauncher.py` synchronously runs every executable in `/userdata/system/scripts` as `<script> gameStart <system> <emulator> <core> <rom>` before launch, and the Flatpak generator goes through the same path. A hook (`fightcade-game-hook`) matches the rom file contents (`com.fightcade.Fightcade`) and runs `fightcade-roms-sync --quiet`, so zips added to `/userdata/roms/fbneo` are linked automatically before every Fightcade launch — no re-run of the installer needed.
+
+### Design addition (2026-08-08): artwork + gamelist install
+
+`batocera-flatpak-update` only ships the app icon (`images/Fightcade.png`) and its ES API entry uses that as `<image>`. The repo now ships the splash artwork `Fightcade-image.png` (1679x943, pulled from the validated device) and `install.sh` wires it up: creates `gamelist.xml` if missing, appends a Fightcade `<game>` entry if the file exists without one, leaves an existing entry untouched, then POSTs the entry to ES's `/addgames/flatpak` HTTP API so a running ES shows the artwork immediately (ES merges by `<path>` and persists itself).
+
+### Design addition (2026-08-09): CRT Switchres support (port of BUA wrapper)
+
+Port of the BUA Wine Fightcade add-on's `switchres_fightcade_wrap.sh` (BUA commits `f40b58a`, `34c3688`). The BUA version intercepts `fcade://` URLs via a host `~/bin/xdg-open` shim; the Flatpak bundles its own read-only `xdg-open` inside `/app`, so that trigger doesn't port. Instead, a host-side daemon (`fightcade-crt-watch`) is started by the gameStart hook and stopped on gameStop. It tails `fcade.log` (host-visible at `.../data/logs/fcade.log`, per research/01 inventory) for `fcade://play/<emu>/<rom>` lines, resolves native dims (same MAME `-listxml` lookup + console prefix table as BUA, incl. Neo Geo 304px correction), patches the emulator configs (host-visible: `config/fcadefbneo/fcadefbneo.ini`, `config/snes9x/fcadesnes9x.conf`, `config/flycast/emu.cfg`), applies `switchres W H R -s -k` with the configured monitor profile, monitors the emulator (Flatpak Wine processes are host-`pgrep`-visible; windows render on host X), and restores configs + display via the BUA multi-fallback restore engine. Gating identical to BUA: xorg display mode + width < 1024, with `fightcade-switchres.disable` / `.force` control files. Known limitation: ggpofba (FC1) ini lives in the read-only app image — FC1 gets the modeline switch but no fullscreen ini patch.
+
 ## Implementation checklist (repo)
 
-- [ ] Create `net-terminal-gene/batocera-fightcade-flatpak` (or final name)
-- [ ] Port Sunshine-style `install.sh` skeleton (prereqs, Flatpak install, logging)
-- [ ] Encode ROMs mkdir scaffold + symlink map + overrides
-- [ ] Optional `diagnose` / `uninstall`
-- [ ] README: curl one-liner, mapping table, ROM format warnings, QA steps
-- [ ] Test on batocera.local: fresh path or re-run over existing install
+- [x] Local repo built at `~/batocera-fightcade-flatpak` (2026-08-08); GitHub repo deferred until tested
+- [x] Port Sunshine-style `install.sh` skeleton (prereqs, Flatpak install, logging)
+- [x] Encode ROMs mkdir scaffold + symlink map + overrides
+- [x] `fightcade-diagnose` / `uninstall.sh`
+- [x] `fightcade-game-hook` auto-refresh on gameStart (design addition, see above)
+- [x] Artwork + gamelist.xml install (design addition, see above)
+- [x] `_fightcade.txt` requirement notes in each linked `roms/<system>` folder (`_info.txt` style; written by sync, removed by uninstall; validated on device 2026-08-08)
+- [x] README: curl one-liner, mapping table, ROM format warnings, artwork, QA steps
+- [x] Test on batocera.local (2026-08-08, fresh flash): full install path incl. Flathub bootstrap + Fightcade install PASS; diagnose all PASS; idempotent re-run PASS; gameStart hook link/prune PASS; gamelist create/append/skip all PASS; user confirmed games launch with artwork
+- [x] CRT Switchres watcher `fightcade-crt-watch` + hook start/stop wiring (design addition, see above; 2026-08-09, not yet device-tested)
+- [ ] Test CRT path on a CRT (xorg, <1024 menu res): modeline switch on TEST GAME, restore on exit, gameStop safety restore
+- [x] Create `net-terminal-gene/batocera-fightcade-flatpak` on GitHub and push (2026-08-09, commit `9a44f14`; raw install URL verified live)
 
 ## Files Touched
 

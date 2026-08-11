@@ -1,23 +1,23 @@
-# BUA Fightcade Flatpak — Missing ROMs Directory
+# Fightcade Flatpak (Flathub) — ROMs + Batocera integration
 
-**Session:** `2026-08-07_bua-fightcade-flatpak-roms`
-**Status:** TBD — PoC validated on batocera.local; next is publish install script repo
-**Primary repo:** planned `net-terminal-gene/batocera-fightcade-flatpak` (Sunshine-style `curl \| bash`)
-**PR:** None yet — see [pr-status.md](pr-status.md)
+**Session:** `2026-08-07_bua-fightcade-flatpak-roms` (slug legacy; **not** BUA Wine Fightcade)
+**Status:** **BETA** — repo published; CRT Switchres needs community validation
+**Primary repo:** [net-terminal-gene/batocera-fightcade-flatpak](https://github.com/net-terminal-gene/batocera-fightcade-flatpak)
+**PR:** None (standalone install repo) — see [pr-status.md](pr-status.md)
 
 ## What this is
 
-Flatpak Fightcade on Batocera hides ROMs under `.var` and does not wire host rom folders. Manual PoC proved: pre-create `data/ROMs`, symlink from `/userdata/roms` (with Flatpak filesystem overrides), and Fightcade reads those games. Plan is to encode that into a GitHub install script under net-terminal-gene, same delivery model as Sunshine Flatpak.
+Flatpak Fightcade on Batocera hides ROMs under `.var` and does not wire host rom folders. This project ships a Sunshine-style installer that symlinks `/userdata/roms` into the Flatpak data tree, adds gamepad navigation, HD video defaults, and a **CRT Switchres wrapper** around gameplay (requires Batocera-CRT-Script). It does **not** change the Fightcade client UI.
 
 ## Where to look
 
 | File / folder | Purpose |
 |---------------|---------|
-| [plan.md](plan.md) | Problem, root cause, install-script plan, symlink map, checklist |
-| [design/](design/) | Architecture for `install.sh` + arcade/console link model |
-| [VERDICT.md](VERDICT.md) | Final outcome when the session closes |
-| [pr-status.md](pr-status.md) | PR links, branch, merge state |
-| [research/](research/) | Inventory, layouts, hash audits |
-| [debug/](debug/) | Symlinks applied + launch notes |
+| [plan.md](plan.md) | Original problem + symlink map (CRT was out of scope at start; now shipped) |
+| [pr-status.md](pr-status.md) | Repo link, commits, validation matrix, beta status |
+| [VERDICT.md](VERDICT.md) | Final outcome when beta closes |
+| [design/](design/) | Install architecture |
+| [research/](research/) | ROM layout, hash audits |
+| [debug/](debug/) | Early symlink PoC on batocera.local |
 
-Authoritative detail lives in **VERDICT.md** and **pr-status.md** once work is done; **plan.md** shows original intent vs what shipped.
+Authoritative live status: **pr-status.md** and the GitHub repo README.

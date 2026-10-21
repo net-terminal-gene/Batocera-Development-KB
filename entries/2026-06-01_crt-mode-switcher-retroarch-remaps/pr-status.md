@@ -1,6 +1,6 @@
 # PR Status — Mode Switcher RetroArch Remaps Loss
 
-## PR (open)
+## PR
 
 | Field | Value |
 |-------|-------|
@@ -8,7 +8,7 @@
 | PR | [#438](https://github.com/ZFEbHVUE/Batocera-CRT-Script/pull/438) |
 | Branch | `fix/crt-mode-switcher-retroarch-remaps` → `main` |
 | Title | fix(mode-switcher): preserve RetroArch remaps across mode switch |
-| Status | **OPEN** |
+| Status | **MERGED** 2026-06-02 (`e7119d1`) |
 | Local commit | `6a8b060` |
 
 ## Test

@@ -1,10 +1,12 @@
 # VERDICT — Mode Switcher RetroArch Remaps Loss
 
-## Status: TBD
+## Status: MERGED
+
+PR [#438](https://github.com/ZFEbHVUE/Batocera-CRT-Script/pull/438) merged 2026-06-02 (`e7119d1`). Reporter confirmed the fix on hardware before merge.
 
 ## Summary
 
-Pending implementation and hardware validation. Root cause identified in code review: `backup_mode_files()` nests RetroArch (and MAME) snapshots on second+ backup via `cp -ra` into existing destination, placing remaps under `retroarch/retroarch/` where RetroArch does not load them after restore.
+Root cause: `backup_mode_files()` nests RetroArch (and MAME) snapshots on second+ backup via `cp -ra` into existing destination, placing remaps under `retroarch/retroarch/` where RetroArch does not load them after restore.
 
 ## Plan vs reality
 

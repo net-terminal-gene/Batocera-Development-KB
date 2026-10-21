@@ -1,9 +1,9 @@
 # Mode Switcher RetroArch Remaps Loss
 
 **Session:** `2026-06-01_crt-mode-switcher-retroarch-remaps`  
-**Status:** TBD  
+**Status:** MERGED via PR #438 (2026-06-02, `e7119d1`)  
 **Primary repo:** ZFEbHVUE/Batocera-CRT-Script  
-**PR:** [#438](https://github.com/ZFEbHVUE/Batocera-CRT-Script/pull/438) (OPEN) — see [pr-status.md](pr-status.md)
+**PR:** [#438](https://github.com/ZFEbHVUE/Batocera-CRT-Script/pull/438) — see [pr-status.md](pr-status.md)
 
 ## What this is
 

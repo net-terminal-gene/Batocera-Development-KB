@@ -7,7 +7,7 @@
 
 ## What this is
 
-Flatpak Fightcade on Batocera hides ROMs under `.var` and does not wire host rom folders. This project ships a Sunshine-style installer that symlinks `/userdata/roms` into the Flatpak data tree, adds gamepad navigation, HD video defaults, and a **CRT Switchres wrapper** around gameplay (requires Batocera-CRT-Script). It does **not** change the Fightcade client UI.
+Flatpak Fightcade on Batocera hides ROMs under `.var` and does not wire host rom folders. This project ships a Sunshine-style installer that symlinks `/userdata/roms` into the Flatpak data tree, adds gamepad navigation, HD video defaults, and a **CRT Switchres wrapper** around gameplay (requires Batocera-CRT-Script). CRT Switchres still wraps gameplay. Vertical lobby UI landed on `main` in PR #4 (merged 2026-10-09, `fa05fd5`).
 
 ## Where to look
 

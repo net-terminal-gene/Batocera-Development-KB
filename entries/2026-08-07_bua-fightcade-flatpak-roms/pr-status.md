@@ -24,7 +24,7 @@
 
 **CRT prerequisite:** [Batocera-CRT-Script](https://github.com/ZFEbHVUE/Batocera-CRT-Script) installed and configured.
 
-**Does not modify Fightcade client UI.** Switchres is a gameplay wrapper around stock Flatpak Fightcade.
+**`main` gameplay wrapper** does not change lobby UI. CRT vertical lobby + Vertical genre landed later in **PR [#4](https://github.com/net-terminal-gene/batocera-fightcade-flatpak/pull/4)** (merged 2026-10-09, `fa05fd5`). This session stays the beta ROM/Switchres snapshot.
 
 ## Validation
 
